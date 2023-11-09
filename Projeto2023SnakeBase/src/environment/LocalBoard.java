@@ -11,44 +11,49 @@ import java.util.concurrent.Executors;
 import game.GameElement;
 import game.Goal;
 import game.Obstacle;
+import game.ObstacleMover;
 import game.Server;
 import game.Snake;
 import game.AutomaticSnake;
 
-/** Class representing the state of a game running locally
+/**
+ * Class representing the state of a game running locally
  * 
  * @author luismota
  *
  */
-public class LocalBoard extends Board{
-	
-	private static final int NUM_SNAKES = 2;
+public class LocalBoard extends Board {
+
+	private static final int NUM_SNAKES = 1;
 	private static final int NUM_OBSTACLES = 25;
 	private static final int NUM_SIMULTANEOUS_MOVING_OBSTACLES = 3;
-
-	
+	ExecutorService pool = Executors.newFixedThreadPool(NUM_SIMULTANEOUS_MOVING_OBSTACLES);
 
 	public LocalBoard() {
-		
+
 		for (int i = 0; i < NUM_SNAKES; i++) {
 			AutomaticSnake snake = new AutomaticSnake(i, this);
 			snakes.add(snake);
 		}
-
-		addObstacles( NUM_OBSTACLES);
 		
-		Goal goal=addGoal();
-//		System.err.println("All elements placed");
+		addObstacles(NUM_OBSTACLES);
+
+		Goal goal = addGoal();
+		// System.err.println("All elements placed");
 	}
 
 	public void init() {
-		for(Snake s:snakes)
+		for (Snake s : snakes)
 			s.start();
+
 		// TODO: launch other threads
+		for (int i = 0; i < NUM_OBSTACLES; i++) {
+			ObstacleMover obs = new ObstacleMover(getObstacles().get(i), this);
+			pool.submit(obs);
+		}
+
 		setChanged();
 	}
-
-	
 
 	@Override
 	public void handleKeyPress(int keyCode) {
@@ -59,9 +64,5 @@ public class LocalBoard extends Board{
 	public void handleKeyRelease() {
 		// do nothing... No keys relevant in local game
 	}
-
-
-
-
 
 }

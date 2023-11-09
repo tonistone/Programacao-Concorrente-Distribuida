@@ -9,7 +9,9 @@ import game.Goal;
 import game.Obstacle;
 import game.Snake;
 import game.AutomaticSnake;
-/** Main class for game representation. 
+
+/**
+ * Main class for game representation.
  * 
  * @author luismota
  *
@@ -17,12 +19,12 @@ import game.AutomaticSnake;
 public class Cell {
 	private BoardPosition position;
 	private Snake ocuppyingSnake = null;
-	private GameElement gameElement=null;
-	
-	public GameElement getGameElement() {
+	private GameElement gameElement = null;
+	private Board board;
+
+	public synchronized GameElement getGameElement() {
 		return gameElement;
 	}
-
 
 	public Cell(BoardPosition position) {
 		super();
@@ -33,55 +35,82 @@ public class Cell {
 		return position;
 	}
 
-	public void request(Snake snake)
-			throws InterruptedException {
-		//TODO coordination and mutual exclusion
-		ocuppyingSnake=snake;
+	public synchronized void request(Snake snake) throws InterruptedException {
+		// TODO coordination and mutual exclusion
+
+		// enquanto está a ocupar essa posição, qualquer outra cobra
+		// que queira aceder a essa posição, ao fazer o pedido tem de ficar em wait()
+		try {
+		while (isOcupiedBySnake() && ocuppyingSnake != snake) {
+			System.err.println("Existe cobra na posição");
+			wait();
+		}
+		// a cobra ocupa uma posição
+		ocuppyingSnake = snake;
+		// quando essa posição fica a null todas as outras threads são notificadas.
+		notifyAll();
+	} catch (InterruptedException e) {
+        // Handle or log the InterruptedException as needed
+        Thread.currentThread().interrupt(); // Restore the interrupted status
+    }
 	}
 
-	public void release() {
-		//TODO
+	public synchronized void release() {
+		// TODO
+		if (isOcupiedBySnake()) {
+			ocuppyingSnake = null;
+			notifyAll();
+		}
 	}
 
 	public boolean isOcupiedBySnake() {
-		return ocuppyingSnake!=null;
+		return ocuppyingSnake != null;
 	}
 
-
-	public  void setGameElement(GameElement element) {
+	public synchronized void setGameElement(GameElement element) {
 		// TODO coordination and mutual exclusion
-		gameElement=element;
-
+		gameElement = element;
 	}
 
 	public boolean isOcupied() {
-		return isOcupiedBySnake() || (gameElement!=null && gameElement instanceof Obstacle);
+		return isOcupiedBySnake() || (gameElement != null && gameElement instanceof Obstacle);
 	}
-
 
 	public Snake getOcuppyingSnake() {
 		return ocuppyingSnake;
 	}
 
+	public synchronized Goal removeGoal() {
 
-	public  Goal removeGoal() {
-		// TODO
-		return null;
+		if (isOcupiedByGoal()) {
+			//System.out.println("O goal foi removido.");
+			Goal goal = getGoal();
+			setGameElement(null); // Remove o Goal da célula atual e coloca-a como null
+			return goal; //retorna o goal removido
+		} 
+		return null; // Nenhum Goal estava presente na célula
 	}
+
+	//se a célula estiver ocupada por um objetivo então capturamos, se não não fazemos nada (-1)
+	public synchronized int captureGoal() {
+		return isOcupiedByGoal() ? getGoal().captureGoal() : -1;
+	}
+
 	public void removeObstacle() {
-	//TODO
+		// TODO
 	}
-
 
 	public Goal getGoal() {
-		return (Goal)gameElement;
+		return (Goal) gameElement;
 	}
 
-
-	public boolean isOcupiedByGoal() {
-		return (gameElement!=null && gameElement instanceof Goal);
+	public synchronized boolean isOcupiedByGoal() {
+		return (gameElement != null && gameElement instanceof Goal);
 	}
-	
-	
+
+	@Override
+	public String toString() {
+		return "Cell [position=" + position + "]";
+	}
 
 }

@@ -13,23 +13,21 @@ import environment.BoardPosition;
 
 public class AutomaticSnake extends Snake {
 	public AutomaticSnake(int id, LocalBoard board) {
-		super(id,board);
+		super(id, board);
 
 	}
 
 	@Override
 	public void run() {
 		doInitialPositioning();
-		System.err.println("initial size:"+cells.size());
-		try {
-			cells.getLast().request(this);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		System.err.println("initial size:" + cells.size());
+		while (!isInterrupted()) {
+			try {
+				move(cells.getFirst());
+				Thread.sleep(100); // Aguardar um pouco para dar a ilusão de movimento
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
-		//TODO: automatic movement
 	}
-	
-
-	
 }

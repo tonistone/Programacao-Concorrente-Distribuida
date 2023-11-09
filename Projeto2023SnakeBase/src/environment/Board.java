@@ -29,7 +29,6 @@ public abstract class Board extends Observable {
 				cells[x][y] = new Cell(new BoardPosition(x, y));
 			}
 		}
-
 	}
 
 	public Cell getCell(BoardPosition cellCoord) {
@@ -56,7 +55,7 @@ public abstract class Board extends Observable {
 				getCell(pos).setGameElement(gameElement);
 				if(gameElement instanceof Goal) {
 					setGoalPosition(pos);
-//					System.out.println("Goal placed at:"+pos);
+					//System.out.println("Goal placed at:"+pos);
 				}
 				placed=true;
 			}
@@ -82,7 +81,7 @@ public abstract class Board extends Observable {
 
 	protected Goal addGoal() {
 		Goal goal=new Goal(this);
-		addGameElement( goal);
+		addGameElement(goal);
 		return goal;
 	}
 
