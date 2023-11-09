@@ -47,11 +47,7 @@ public class LocalBoard extends Board {
 			s.start();
 
 		// TODO: launch other threads
-		for (int i = 0; i < NUM_OBSTACLES; i++) {
-			ObstacleMover obs = new ObstacleMover(getObstacles().get(i), this);
-			pool.submit(obs);
-		}
-
+		//thread pool
 		setChanged();
 	}
 

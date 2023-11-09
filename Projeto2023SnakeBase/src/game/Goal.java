@@ -3,7 +3,7 @@ package game;
 import environment.Board;
 import environment.BoardPosition;
 import environment.Cell;
-import environment.LocalBoard;
+
 
 public class Goal extends GameElement {
 	private int value = 1;

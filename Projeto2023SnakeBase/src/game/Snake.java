@@ -48,13 +48,19 @@ public abstract class Snake extends Thread implements Serializable {
 	}
 
 	protected synchronized void move(Cell cell) throws InterruptedException {
+
+		//cabeça da cobra é a primeira posição da lista
 		Cell head = cells.getFirst();
+		//vai pegar no método e calcular para cada posição a posição mais perto do objetivo
 		BoardPosition roadToGoal = getDistanceToGoal(cell);
 
+		//Se a celula vizinha contiver a célula necessária para fazer a menor distancia do caminho para o objetivo
+		//E se essa mesma célula não estiver ocupada por uma cobra
 		if (board.getNeighboringPositions(cell).contains(roadToGoal) && !board.getCell(roadToGoal).isOcupiedBySnake()) {
-
+			//A cabeça da cobra vai aumentar 1 posição
 			head = board.getCell(roadToGoal);
 			cells.addFirst(head);
+			//Se a celula estiver ocupada por uma cobra vai dar wait() até que deixe de estar ocupada
 			cells.getFirst().request(this);
 	
 			// Verifique se a cabeça da cobra atingiu o objetivo e captura o objetivo
@@ -78,7 +84,6 @@ public abstract class Snake extends Thread implements Serializable {
 	// e a posição do goal
 	private synchronized BoardPosition getDistanceToGoal(Cell cell) {
 		List<BoardPosition> neighboringPositions = board.getNeighboringPositions(cell);
-
 		// Inicializo a distancia minima com um valor grande mesmo para que
 		// na primeira comparação o valor da primeira posição vizinha seja logo a
 		// minDistance, a partir deste momento vou comparar as outras posições vizinhas

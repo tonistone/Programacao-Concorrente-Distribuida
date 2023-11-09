@@ -98,6 +98,7 @@ public class Cell {
 
 	public void removeObstacle() {
 		// TODO
+		//addObstacle
 	}
 
 	public Goal getGoal() {
