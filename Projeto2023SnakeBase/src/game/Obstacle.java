@@ -1,6 +1,7 @@
 package game;
 
 import environment.Board;
+import environment.Cell;
 import environment.LocalBoard;
 
 public class Obstacle extends GameElement {
@@ -17,6 +18,19 @@ public class Obstacle extends GameElement {
 	
 	public int getRemainingMoves() {
 		return remainingMoves;
+	}
+
+	public void decreaseRemainingMoves(){
+		remainingMoves--;
+	}
+
+	public int getOBSTACLE_MOVE_INTERVAL() {
+		return OBSTACLE_MOVE_INTERVAL;
+	}
+
+
+	public int getNumMoves() {
+		return NUM_MOVES;
 	}
 
 }

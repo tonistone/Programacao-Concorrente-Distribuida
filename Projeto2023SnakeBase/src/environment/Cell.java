@@ -34,44 +34,36 @@ public class Cell {
 	public BoardPosition getPosition() {
 		return position;
 	}
-
-	public synchronized void request(Snake snake) throws InterruptedException {
-		// TODO coordination and mutual exclusion
-
-		// enquanto está a ocupar essa posição, qualquer outra cobra
-		// que queira aceder a essa posição, ao fazer o pedido tem de ficar em wait()
+	public synchronized void request(Snake snake, GameElement gElement) throws InterruptedException {
 		try {
-		while (isOcupiedBySnake() && ocuppyingSnake != snake) {
-			System.err.println("Existe cobra na posição");
-			wait();
-		}
-		// a cobra ocupa uma posição
+			while (isOcupiedBySnake() && ocuppyingSnake != snake  && snake!=null || isOcupiedBySnake() && snake==null || isOcupied()) {
+				wait();
+			}
 		ocuppyingSnake = snake;
-		// quando essa posição fica a null todas as outras threads são notificadas.
+		gameElement = gElement;
+
 		notifyAll();
 	} catch (InterruptedException e) {
-        // Handle or log the InterruptedException as needed
-        Thread.currentThread().interrupt(); // Restore the interrupted status
     }
 	}
 
 	public synchronized void release() {
-		// TODO
-		if (isOcupiedBySnake()) {
 			ocuppyingSnake = null;
+			gameElement = null;
 			notifyAll();
-		}
 	}
 
 	public boolean isOcupiedBySnake() {
 		return ocuppyingSnake != null;
 	}
+	
 
 	public synchronized void setGameElement(GameElement element) {
 		// TODO coordination and mutual exclusion
 		gameElement = element;
 	}
 
+	//what if its ocupied by goal?
 	public boolean isOcupied() {
 		return isOcupiedBySnake() || (gameElement != null && gameElement instanceof Obstacle);
 	}

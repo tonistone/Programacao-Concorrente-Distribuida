@@ -24,8 +24,8 @@ import game.AutomaticSnake;
  */
 public class LocalBoard extends Board {
 
-	private static final int NUM_SNAKES = 0;
-	private static final int NUM_OBSTACLES = 25;
+	private static final int NUM_SNAKES = 2;
+	private static final int NUM_OBSTACLES = 6;
 	private static final int NUM_SIMULTANEOUS_MOVING_OBSTACLES = 3;
 	ExecutorService pool = Executors.newFixedThreadPool(NUM_SIMULTANEOUS_MOVING_OBSTACLES);
 
@@ -45,10 +45,20 @@ public class LocalBoard extends Board {
 	public void init() {
 		for (Snake s : snakes)
 			s.start();
-
-		// TODO: launch other threads
+ 
+		for (Obstacle o : getObstacles()){
+			ObstacleMover om = new ObstacleMover(o, this);
+			pool.submit(om);
+			//om.start();
+			System.out.println("THREAD OBSTACLE STARTED");
+		}
+		pool.shutdown();
 		//thread pool
 		setChanged();
+	}
+	
+	public Cell getRandomCell(){
+		return super.getCell(getRandomPosition());
 	}
 
 	@Override

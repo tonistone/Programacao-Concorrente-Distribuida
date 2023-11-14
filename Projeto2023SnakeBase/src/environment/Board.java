@@ -53,6 +53,7 @@ public abstract class Board extends Observable {
 			BoardPosition pos=getRandomPosition();
 			if(!getCell(pos).isOcupied() && !getCell(pos).isOcupiedByGoal()) {
 				getCell(pos).setGameElement(gameElement);
+				gameElement.setOriginalCell(getCell(pos));
 				if(gameElement instanceof Goal) {
 					setGoalPosition(pos);
 					//System.out.println("Goal placed at:"+pos);
@@ -110,7 +111,6 @@ public abstract class Board extends Observable {
 	public LinkedList<Obstacle> getObstacles() {
 		return obstacles;
 	}
-
 	
 	public abstract void init(); 
 	
