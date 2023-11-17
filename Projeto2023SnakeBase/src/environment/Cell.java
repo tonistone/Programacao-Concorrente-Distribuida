@@ -34,13 +34,15 @@ public class Cell {
 	public BoardPosition getPosition() {
 		return position;
 	}
-	public synchronized void request(Snake snake, GameElement gElement) throws InterruptedException {
+	public synchronized void request(Snake snake) throws InterruptedException {
 		try {
-			while (isOcupiedBySnake() && ocuppyingSnake != snake  && snake!=null || isOcupiedBySnake() && snake==null || isOcupied()) {
-				wait();
-			}
+			//while (isOcupiedBySnake() && ocuppyingSnake != snake  && snake!=null || isOcupiedBySnake() && snake==null || isOcupied()) {
+			//	wait();
+			//}
+			while (isOcupiedBySnake() && ocuppyingSnake != snake || isOcupied()) {
+                wait();
+            }
 		ocuppyingSnake = snake;
-		gameElement = gElement;
 
 		notifyAll();
 	} catch (InterruptedException e) {
@@ -59,8 +61,8 @@ public class Cell {
 	
 
 	public synchronized void setGameElement(GameElement element) {
-		// TODO coordination and mutual exclusion
-		gameElement = element;
+		if(!isOcupied())
+			gameElement = element;
 	}
 
 	//what if its ocupied by goal?
@@ -90,7 +92,6 @@ public class Cell {
 
 	public void removeObstacle() {
 		// TODO
-		//addObstacle
 	}
 
 	public Goal getGoal() {

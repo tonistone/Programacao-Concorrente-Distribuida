@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Observable;
+import java.util.Random;
 
 import game.GameElement;
 import game.Goal;
@@ -62,6 +63,22 @@ public abstract class Board extends Observable {
 			}
 		}
 	}
+
+	 public BoardPosition getRandomListTime(List<BoardPosition> list) {
+        // Check if the list is not empty
+        if (list == null || list.isEmpty()) {
+            return null;
+        }
+
+        // Create a Random object
+        Random random = new Random();
+
+        // Generate a random index within the range of the list size
+        int randomIndex = random.nextInt(list.size());
+
+        // Return the randomly chosen item
+        return list.get(randomIndex);
+    }
 
 	public List<BoardPosition> getNeighboringPositions(Cell cell) {
 		ArrayList<BoardPosition> possibleCells=new ArrayList<BoardPosition>();

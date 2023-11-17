@@ -22,13 +22,13 @@ public class ObstacleMover extends Thread {
 		}
 	}
 
-	public void move(){
+	public synchronized void move(){
 		try {
 			//getOBSTACLE_MOVE_INTERVAL()
-			sleep(3000);
+			sleep(300);
 			Cell pos =randomPos(obstacle);
-			pos.request(null, obstacle);
-			obstacle.setnextCell(pos);
+			//pos.request(null, obstacle);
+			//obstacle.setnextCell(pos);
 			pos.setGameElement(obstacle);
 			obstacle.getOriginalCell().release();
 			obstacle.setOriginalCell(pos);
@@ -40,8 +40,6 @@ public class ObstacleMover extends Thread {
 
 	public Cell randomPos(Obstacle o){
 		Cell pos= board.getRandomCell();
-		
-		board.setChanged();
 		return pos;
 	}
 }

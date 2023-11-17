@@ -61,7 +61,7 @@ public abstract class Snake extends Thread implements Serializable {
 			head = board.getCell(roadToGoal);
 			cells.addFirst(head);
 			//Se a celula estiver ocupada por uma cobra vai dar wait() até que deixe de estar ocupada
-			cells.getFirst().request(this, null);
+			cells.getFirst().request(this);
 	
 			// Verifique se a cabeça da cobra atingiu o objetivo e captura o objetivo
 			if (head.isOcupiedByGoal()) {
@@ -79,6 +79,20 @@ public abstract class Snake extends Thread implements Serializable {
 		board.setChanged();
 		notifyAll();
 	}
+
+	public void resetSnake(Cell cell) throws InterruptedException {
+		Cell head = cells.getFirst();
+		head = cell;
+		cells.addFirst(head);
+		cell.request(this);
+		if (cells.size() > size) {
+				cells.getLast().release();
+				cells.removeLast();
+			}
+		board.setChanged();
+		//notifyAll();
+	}
+
 
 	// Método para calcular a distancia entre cada posição vizinha
 	// e a posição do goal
@@ -123,7 +137,7 @@ public abstract class Snake extends Thread implements Serializable {
 		BoardPosition at = new BoardPosition(posX, posY);
 
 		try {
-			board.getCell(at).request(this, null);
+			board.getCell(at).request(this);
 		} catch (InterruptedException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -136,5 +150,4 @@ public abstract class Snake extends Thread implements Serializable {
 		return board;
 	}
 
-	//onde tá o run?? isto é thread
 }
