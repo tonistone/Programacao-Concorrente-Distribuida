@@ -53,20 +53,7 @@ public class SnakeGui implements Observer {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				for(Snake s : board.getSnakes()){
-					List<BoardPosition> neighboringPositions = board.getNeighboringPositions(s.getCells().getFirst());
-					BoardPosition newPos = null;
-					while(newPos == null){
-						newPos = board.getRandomListTime(neighboringPositions);
-						try {
-							s.resetSnake(board.getCell(newPos));
-						} catch (InterruptedException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						}
-					}
-					
-				}
+				resetSnakesDirections();
 			}
 				
 		});
@@ -75,6 +62,16 @@ public class SnakeGui implements Observer {
 		
 		frame.pack();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	}
+
+	private void resetSnakesDirections() {
+		for (Snake snake : board.getSnakes()) {
+			if (snake.collidesWithObstacle()) {
+				// Snake collided with obstacle, reset its direction
+
+				//snake.setRandomDirection();
+			}
+		}
 	}
 
 	public void init() {

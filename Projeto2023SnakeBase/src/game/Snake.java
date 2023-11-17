@@ -93,6 +93,15 @@ public abstract class Snake extends Thread implements Serializable {
 		//notifyAll();
 	}
 
+	//ver se colidiu com o obstáculo
+	public boolean collidesWithObstacle() {
+		for (Cell cell : cells) {
+			if (cell.getGameElement() instanceof Obstacle) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	// Método para calcular a distancia entre cada posição vizinha
 	// e a posição do goal

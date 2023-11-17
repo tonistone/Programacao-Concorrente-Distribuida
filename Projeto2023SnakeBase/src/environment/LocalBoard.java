@@ -28,6 +28,7 @@ public class LocalBoard extends Board {
 	private static final int NUM_OBSTACLES = 25;
 	private static final int NUM_SIMULTANEOUS_MOVING_OBSTACLES = 3;
 	ExecutorService pool = Executors.newFixedThreadPool(NUM_SIMULTANEOUS_MOVING_OBSTACLES);
+	private Goal goal;
 
 	public LocalBoard() {
 
@@ -35,29 +36,40 @@ public class LocalBoard extends Board {
 			AutomaticSnake snake = new AutomaticSnake(i, this);
 			snakes.add(snake);
 		}
-		
+
 		addObstacles(NUM_OBSTACLES);
 
-		Goal goal = addGoal();
+		goal = addGoal();
 		// System.err.println("All elements placed");
 	}
 
 	public void init() {
-		for (Snake s : snakes)
+		for (Snake s : snakes) {
 			s.start();
- 
-		for (Obstacle o : getObstacles()){
+		}
+
+		// thread pool
+		for (Obstacle o : getObstacles()) {
 			ObstacleMover om = new ObstacleMover(o, this);
 			pool.submit(om);
-			//om.start();
-			System.out.println("THREAD OBSTACLE STARTED");
 		}
 		pool.shutdown();
-		//thread pool
 		setChanged();
+
+		try {
+			goal.getcountDown().await();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+		for (Snake s : snakes) {
+			s.interrupt();
+		}
+
+		System.out.println("Barreira quebrada");
 	}
-	
-	public Cell getRandomCell(){
+
+	public Cell getRandomCell() {
 		return super.getCell(getRandomPosition());
 	}
 
