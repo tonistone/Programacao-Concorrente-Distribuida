@@ -1,24 +1,29 @@
 package game;
 
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+import environment.Board;
 import environment.Cell;
 
 public abstract class GameElement {
-    private Cell originalCell;
-    private Cell nextCell;
+	//private Board board;
+    private Cell myCell;
+	private Lock lock = new ReentrantLock();
 
-    public Cell getOriginalCell(){
-		return originalCell;
+    public Cell getMyCell(){
+		return myCell;
 	}
 
-    public void setOriginalCell(Cell newCell){
-		originalCell = newCell;
+    public void setMyCell(Cell newCell){
+		myCell = newCell;
 	}
 
-    public Cell getnextCell(){
-		return nextCell;
-	}
+	public void acquireLock() {
+        lock.lock();
+    }
 
-    public void setnextCell(Cell newCell){
-		nextCell = newCell;
-	}
+    public void releaseLock() {
+        lock.unlock();
+    }
 }

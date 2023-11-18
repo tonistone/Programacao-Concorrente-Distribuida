@@ -1,6 +1,8 @@
 package game;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import environment.Board;
 import environment.BoardPosition;
@@ -11,9 +13,11 @@ public class Goal extends GameElement {
 	private int value = 1;
 	private Board board;
 	public static final int MAX_VALUE = 10;
+	private Lock lock = new ReentrantLock();
 	private CountDownLatch cdl = new CountDownLatch(9);
 
 	public Goal(Board board2) {
+		super();
 		this.board = board2;
 	}
 
@@ -21,7 +25,8 @@ public class Goal extends GameElement {
 		return value;
 	}
 
-	public synchronized void incrementValue() throws InterruptedException {
+	public void incrementValue() throws InterruptedException {
+		acquireLock();
 		try {
 			if (value < MAX_VALUE) {
 				value++;
@@ -30,12 +35,9 @@ public class Goal extends GameElement {
 			e.printStackTrace();
 		} finally {
 			cdl.countDown();
+			releaseLock();
 		}
 
-	}
-
-	public CountDownLatch getcountDown() {
-		return cdl;
 	}
 
 	public int captureGoal() {
@@ -46,7 +48,7 @@ public class Goal extends GameElement {
 
 			incrementValue();
 
-			if(value < MAX_VALUE) {
+			if(value < MAX_VALUE && !myCell.isOcupiedByObstacle()) {
 			board.addGameElement(currentGoal);
 			}
 		} catch (Exception e) {
@@ -54,5 +56,10 @@ public class Goal extends GameElement {
 		}
 		return value;
 	}
+
+	public CountDownLatch getcountDown() {
+		return cdl;
+	}
+
 }
 

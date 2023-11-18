@@ -25,7 +25,7 @@ public class AutomaticSnake extends Snake {
 			System.err.println("initial size:" + cells.size());
 			while (!isInterrupted()) {
 
-				Thread.sleep(100);
+				Thread.sleep(Board.PLAYER_PLAY_INTERVAL);
 				move(cells.getFirst());
 			}
 		} catch (InterruptedException e) {

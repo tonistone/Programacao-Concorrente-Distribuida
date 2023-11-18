@@ -24,8 +24,8 @@ import game.AutomaticSnake;
  */
 public class LocalBoard extends Board {
 
-	private static final int NUM_SNAKES = 1;
-	private static final int NUM_OBSTACLES = 25;
+	private static final int NUM_SNAKES = 5;
+	private static final int NUM_OBSTACLES = 0;
 	private static final int NUM_SIMULTANEOUS_MOVING_OBSTACLES = 3;
 	ExecutorService pool = Executors.newFixedThreadPool(NUM_SIMULTANEOUS_MOVING_OBSTACLES);
 	private Goal goal;
@@ -69,9 +69,6 @@ public class LocalBoard extends Board {
 		System.out.println("Barreira quebrada");
 	}
 
-	public Cell getRandomCell() {
-		return super.getCell(getRandomPosition());
-	}
 
 	@Override
 	public void handleKeyPress(int keyCode) {

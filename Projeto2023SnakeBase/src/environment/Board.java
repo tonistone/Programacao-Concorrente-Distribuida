@@ -54,7 +54,7 @@ public abstract class Board extends Observable {
 			BoardPosition pos=getRandomPosition();
 			if(!getCell(pos).isOcupied() && !getCell(pos).isOcupiedByGoal()) {
 				getCell(pos).setGameElement(gameElement);
-				gameElement.setOriginalCell(getCell(pos));
+				gameElement.setMyCell(getCell(pos));
 				if(gameElement instanceof Goal) {
 					setGoalPosition(pos);
 					//System.out.println("Goal placed at:"+pos);
@@ -64,21 +64,6 @@ public abstract class Board extends Observable {
 		}
 	}
 
-	 public BoardPosition getRandomListTime(List<BoardPosition> list) {
-        // Check if the list is not empty
-        if (list == null || list.isEmpty()) {
-            return null;
-        }
-
-        // Create a Random object
-        Random random = new Random();
-
-        // Generate a random index within the range of the list size
-        int randomIndex = random.nextInt(list.size());
-
-        // Return the randomly chosen item
-        return list.get(randomIndex);
-    }
 
 	public List<BoardPosition> getNeighboringPositions(Cell cell) {
 		ArrayList<BoardPosition> possibleCells=new ArrayList<BoardPosition>();
@@ -96,7 +81,6 @@ public abstract class Board extends Observable {
 	}
 
 	
-
 	protected Goal addGoal() {
 		Goal goal=new Goal(this);
 		addGameElement(goal);

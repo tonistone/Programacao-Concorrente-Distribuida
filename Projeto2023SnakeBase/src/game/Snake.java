@@ -5,6 +5,9 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import environment.LocalBoard;
 import gui.SnakeGui;
@@ -25,6 +28,8 @@ public abstract class Snake extends Thread implements Serializable {
 	protected int size = 5;
 	private int id;
 	private Board board;
+	private Lock snakeLock = new ReentrantLock();
+	private Condition cellAvailable = snakeLock.newCondition();
 
 	public Snake(int id, Board board) {
 		this.id = id;
@@ -47,74 +52,43 @@ public abstract class Snake extends Thread implements Serializable {
 		return cells;
 	}
 
-	protected synchronized void move(Cell cell) throws InterruptedException {
-
-		//cabeça da cobra é a primeira posição da lista
-		Cell head = cells.getFirst();
-		//vai pegar no método e calcular para cada posição a posição mais perto do objetivo
-		BoardPosition roadToGoal = getDistanceToGoal(cell);
-
-		//Se a celula vizinha contiver a célula necessária para fazer a menor distancia do caminho para o objetivo
-		//E se essa mesma célula não estiver ocupada por uma cobra
-		if (board.getNeighboringPositions(cell).contains(roadToGoal) && !board.getCell(roadToGoal).isOcupiedBySnake()) {
-			//A cabeça da cobra vai aumentar 1 posição
-			head = board.getCell(roadToGoal);
-			cells.addFirst(head);
-			//Se a celula estiver ocupada por uma cobra vai dar wait() até que deixe de estar ocupada
-			cells.getFirst().request(this);
-	
-			// Verifique se a cabeça da cobra atingiu o objetivo e captura o objetivo
-			if (head.isOcupiedByGoal()) {
-				//int sizeInicial = getSize();
-				int valor = head.captureGoal();
-				size += valor - 1;
-				//int sizeFinal = getSize();
-				//System.out.println("Valor de crescimento= " + (sizeFinal - sizeInicial));
+	protected void move(Cell cell) throws InterruptedException {
+		snakeLock.lock();
+		try {
+			Cell head = cells.getFirst();
+			BoardPosition roadToGoal = getDistanceToGoal(cell);
+			boolean canMove = board.getNeighboringPositions(cell).contains(roadToGoal);
+			if (canMove) {
+				head = board.getCell(roadToGoal);
+				head.request(this);
+				cells.addFirst(head);
+				
+				if (head.isOcupiedByGoal()) {
+					int valor = head.captureGoal();
+					size += valor - 1;
+				}
+					if (cells.size() > size) {
+						cells.getLast().release();
+						cells.removeLast();
+					}
 			}
-			if (cells.size() > size) {
-				cells.getLast().release();
-				cells.removeLast();
-			}
+			
+			board.setChanged();
+			cellAvailable.signalAll();
+		
+		} finally {
+			snakeLock.unlock();
 		}
-		board.setChanged();
-		notifyAll();
-	}
-
-	public void resetSnake(Cell cell) throws InterruptedException {
-		Cell head = cells.getFirst();
-		head = cell;
-		cells.addFirst(head);
-		cell.request(this);
-		if (cells.size() > size) {
-				cells.getLast().release();
-				cells.removeLast();
-			}
-		board.setChanged();
-		//notifyAll();
-	}
-
-	//ver se colidiu com o obstáculo
-	public boolean collidesWithObstacle() {
-		for (Cell cell : cells) {
-			if (cell.getGameElement() instanceof Obstacle) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 	// Método para calcular a distancia entre cada posição vizinha
 	// e a posição do goal
 	private synchronized BoardPosition getDistanceToGoal(Cell cell) {
 		List<BoardPosition> neighboringPositions = board.getNeighboringPositions(cell);
-		// Inicializo a distancia minima com um valor grande mesmo para que
-		// na primeira comparação o valor da primeira posição vizinha seja logo a
-		// minDistance, a partir deste momento vou comparar as outras posições vizinhas
-		// com a posição vizinha que já lá está
 		double minDistance = Double.MAX_VALUE;
 		BoardPosition nextPosition = null;
 		BoardPosition goalPosition = board.getGoalPosition();
-
+		
 		// Calcule a distância entre cada posição vizinha e o objetivo
 		for (BoardPosition vizinho : neighboringPositions) {
 			// Verifique se a posição vizinha não está ocupada pela cobra
@@ -157,6 +131,27 @@ public abstract class Snake extends Thread implements Serializable {
 
 	public Board getBoard() {
 		return board;
+	}
+
+
+	public synchronized void resetDirection() throws InterruptedException {
+		// Verifica as posições vizinhas após a interrupção
+					Cell head = cells.getFirst();
+					BoardPosition nextPosition = getDistanceToGoal(head);
+					if(nextPosition != null) {
+						Cell newHead = board.getCell(nextPosition);
+						if (!newHead.isOcupied()) {
+							System.out.println("Entrei no if");
+							head = newHead;
+							newHead.request(this);
+							System.out.println("Posição da minha cell: " + newHead);
+							cells.addFirst(newHead);
+							move(newHead);
+						}
+					}
+					cells.getLast().release();
+					cells.removeLast();
+					board.setChanged();
 	}
 
 }

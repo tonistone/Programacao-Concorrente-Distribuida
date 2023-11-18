@@ -15,6 +15,7 @@ import javax.swing.JFrame;
 
 import environment.Board;
 import environment.BoardPosition;
+import environment.Cell;
 import environment.LocalBoard;
 import game.Snake;
 /**
@@ -53,7 +54,16 @@ public class SnakeGui implements Observer {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				resetSnakesDirections();
+				for (Snake snake : board.getSnakes()) {
+					snake.interrupt();
+					System.out.println("Interrompi as snakes");
+					try {
+						snake.resetDirection();
+					} catch (InterruptedException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
 			}
 				
 		});
@@ -64,15 +74,6 @@ public class SnakeGui implements Observer {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 
-	private void resetSnakesDirections() {
-		for (Snake snake : board.getSnakes()) {
-			if (snake.collidesWithObstacle()) {
-				// Snake collided with obstacle, reset its direction
-
-				//snake.setRandomDirection();
-			}
-		}
-	}
 
 	public void init() {
 		frame.setVisible(true);

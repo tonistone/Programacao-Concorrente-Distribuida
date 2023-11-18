@@ -1,13 +1,16 @@
 package game;
 
-import environment.BoardPosition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 import environment.Cell;
 import environment.LocalBoard;
 
 public class ObstacleMover extends Thread {
 	private Obstacle obstacle;
 	private LocalBoard board;
-	
+	private Lock cellLock = new ReentrantLock();
+
 	public ObstacleMover(Obstacle obstacle, LocalBoard board) {
 		super();
 		this.obstacle = obstacle;
@@ -16,30 +19,28 @@ public class ObstacleMover extends Thread {
 
 	@Override
 	public void run() {
-		while (obstacle.getRemainingMoves()>0) {
-			move();
-			obstacle.decreaseRemainingMoves();
-		}
-	}
-
-	public synchronized void move(){
 		try {
-			sleep(obstacle.getOBSTACLE_MOVE_INTERVAL());
-			Cell pos =randomPos(obstacle);
-			//pos.request(null, obstacle);
-			//obstacle.setnextCell(pos);
-			pos.setGameElement(obstacle);
-			obstacle.getOriginalCell().release();
-			obstacle.setOriginalCell(pos);
+			while (obstacle.getRemainingMoves() > 0) {
+				Thread.sleep(obstacle.getOBSTACLE_MOVE_INTERVAL());
+				Cell myCell = obstacle.getMyCell();
+				myCell.removeObstacle();
+
+				cellLock.lock();
+				try {
+					if (!myCell.isOcupiedByObstacle() || !myCell.isOcupiedBySnake()) {
+						board.addGameElement(obstacle);
+					}
+					obstacle.decreaseRemainingMoves();
+					board.setChanged();
+				} finally {
+					cellLock.unlock();
+				}
+			}
 		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
-		board.setChanged();
 	}
 
-	public Cell randomPos(Obstacle o){
-		Cell pos= board.getRandomCell();
-		return pos;
-	}
 }

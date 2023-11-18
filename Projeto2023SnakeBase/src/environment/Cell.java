@@ -1,6 +1,10 @@
 package environment;
 
 import java.io.Serializable;
+import java.util.Random;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.sound.midi.SysexMessage;
 
@@ -20,7 +24,9 @@ public class Cell {
 	private BoardPosition position;
 	private Snake ocuppyingSnake = null;
 	private GameElement gameElement = null;
-	private Board board;
+	private Lock cellLock = new ReentrantLock();
+	private Condition snakeMoved = cellLock.newCondition();
+	private Condition obstacleRemoved = cellLock.newCondition();
 
 	public synchronized GameElement getGameElement() {
 		return gameElement;
@@ -34,38 +40,39 @@ public class Cell {
 	public BoardPosition getPosition() {
 		return position;
 	}
-	public synchronized void request(Snake snake) throws InterruptedException {
-		try {
-			//while (isOcupiedBySnake() && ocuppyingSnake != snake  && snake!=null || isOcupiedBySnake() && snake==null || isOcupied()) {
-			//	wait();
-			//}
-			while (isOcupiedBySnake() && ocuppyingSnake != snake || isOcupied()) {
-                wait();
-            }
-		ocuppyingSnake = snake;
 
-		notifyAll();
-	} catch (InterruptedException e) {
-    }
+	public void request(Snake snake) throws InterruptedException {
+		cellLock.lock();
+		try {
+			while (isOcupied() && (ocuppyingSnake != snake || ocuppyingSnake == snake)) {
+				System.out.println("verifiquei o while");
+				snakeMoved.await();
+				}
+			ocuppyingSnake = snake;
+		} finally {
+			cellLock.unlock();
+		}
 	}
 
-	public synchronized void release() {
+	public void release() {
+		cellLock.lock();
+		try {
 			ocuppyingSnake = null;
-			gameElement = null;
-			notifyAll();
+			snakeMoved.signalAll();
+		} finally {
+			cellLock.unlock();
+		}
 	}
 
 	public boolean isOcupiedBySnake() {
 		return ocuppyingSnake != null;
 	}
-	
 
 	public synchronized void setGameElement(GameElement element) {
-		if(!isOcupied())
+		if (!isOcupiedByObstacle())
 			gameElement = element;
 	}
 
-	//what if its ocupied by goal?
 	public boolean isOcupied() {
 		return isOcupiedBySnake() || (gameElement != null && gameElement instanceof Obstacle);
 	}
@@ -75,24 +82,30 @@ public class Cell {
 	}
 
 	public synchronized Goal removeGoal() {
-
 		if (isOcupiedByGoal()) {
-			//System.out.println("O goal foi removido.");
 			Goal goal = getGoal();
-			setGameElement(null); // Remove o Goal da célula atual e coloca-a como null
-			return goal; //retorna o goal removido
-		} 
-		return null; // Nenhum Goal estava presente na célula
+			setGameElement(null);
+			return goal;
+		}
+		return null;
 	}
 
-	//se a célula estiver ocupada por um objetivo então capturamos, se não não fazemos nada (-1)
+	// se a célula estiver ocupada por um objetivo então capturamos, se não não
+	// fazemos nada (-1)
 	public synchronized int captureGoal() {
 		return isOcupiedByGoal() ? getGoal().captureGoal() : -1;
 	}
 
 	public void removeObstacle() {
-		// TODO
+		cellLock.lock();
+		try {
+			gameElement = null;
+			obstacleRemoved.signalAll();
+		} finally {
+			cellLock.unlock();
+		}
 	}
+
 
 	public Goal getGoal() {
 		return (Goal) gameElement;
@@ -100,6 +113,10 @@ public class Cell {
 
 	public synchronized boolean isOcupiedByGoal() {
 		return (gameElement != null && gameElement instanceof Goal);
+	}
+
+	public synchronized boolean isOcupiedByObstacle() {
+		return (gameElement != null && gameElement instanceof Obstacle);
 	}
 
 	@Override

@@ -28,7 +28,6 @@ public class Obstacle extends GameElement {
 		return OBSTACLE_MOVE_INTERVAL;
 	}
 
-
 	public int getNumMoves() {
 		return NUM_MOVES;
 	}
