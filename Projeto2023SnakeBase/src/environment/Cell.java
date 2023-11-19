@@ -26,7 +26,6 @@ public class Cell {
 	private GameElement gameElement = null;
 	private Lock cellLock = new ReentrantLock();
 	private Condition snakeMoved = cellLock.newCondition();
-	private Condition obstacleRemoved = cellLock.newCondition();
 
 	public synchronized GameElement getGameElement() {
 		return gameElement;
@@ -44,8 +43,7 @@ public class Cell {
 	public void request(Snake snake) throws InterruptedException {
 		cellLock.lock();
 		try {
-			while (isOcupied() && (ocuppyingSnake != snake || ocuppyingSnake == snake)) {
-				System.out.println("verifiquei o while");
+			while (isOcupied() && ocuppyingSnake != snake) {
 				snakeMoved.await();
 				}
 			ocuppyingSnake = snake;
@@ -100,7 +98,7 @@ public class Cell {
 		cellLock.lock();
 		try {
 			gameElement = null;
-			obstacleRemoved.signalAll();
+			snakeMoved.signalAll();
 		} finally {
 			cellLock.unlock();
 		}
