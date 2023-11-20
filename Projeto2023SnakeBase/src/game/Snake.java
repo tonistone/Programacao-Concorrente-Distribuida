@@ -110,9 +110,8 @@ public abstract class Snake extends Thread implements Serializable {
 		for (BoardPosition vizinho : neighboringPositions) {
 			System.out.println("for - " + vizinho);
 			// Verifique se a posição vizinha não está ocupada pela cobra
-			//&& (!board.getCell(vizinho).isOcupiedBySnake())
 			System.out.println(!board.getCell(vizinho).isOcupiedByDeadObstacle());
-			if ((!board.getCell(vizinho).isOcupiedByDeadObstacle())) { 
+			if ((!board.getCell(vizinho).isOcupiedByDeadObstacle()) && (!board.getCell(vizinho).isOcupiedBySnake())) { 
 				System.out.println("ENTREi");
 				double distance = vizinho.distanceTo(goalPosition);
 				double minDistance = distance;

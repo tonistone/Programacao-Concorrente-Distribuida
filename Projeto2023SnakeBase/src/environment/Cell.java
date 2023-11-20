@@ -43,7 +43,7 @@ public class Cell {
 	public void request(Snake snake) throws InterruptedException {
 		cellLock.lock();
 		try {
-			while (isOcupied() && ocuppyingSnake != snake) {
+			while (isOcupied() && (ocuppyingSnake != snake || ocuppyingSnake == null)) {
 				System.out.println("WAITING");
 				snakeMoved.await();
 			}
