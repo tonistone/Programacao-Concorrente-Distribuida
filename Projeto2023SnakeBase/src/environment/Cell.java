@@ -44,7 +44,7 @@ public class Cell {
 		cellLock.lock();
 		try {
 			while (isOcupied() && (ocuppyingSnake != snake || ocuppyingSnake == snake)) {
-				System.out.println("verifiquei o while");
+				System.out.println("WAITING");
 				snakeMoved.await();
 			}
 			ocuppyingSnake = snake;
