@@ -43,9 +43,10 @@ public class Cell {
 	public void request(Snake snake) throws InterruptedException {
 		cellLock.lock();
 		try {
-			while (isOcupied() && ocuppyingSnake != snake) {
+			while (isOcupied() && (ocuppyingSnake != snake || ocuppyingSnake == snake)) {
+				System.out.println("verifiquei o while");
 				snakeMoved.await();
-				}
+			}
 			ocuppyingSnake = snake;
 		} finally {
 			cellLock.unlock();
@@ -117,9 +118,21 @@ public class Cell {
 		return (gameElement != null && gameElement instanceof Obstacle);
 	}
 
+	public synchronized boolean isOcupiedByDeadObstacle(){
+		Obstacle o = convertObstacle();
+		return (isOcupiedByObstacle() && o.getRemainingMoves()==0);
+	}
+
 	@Override
 	public String toString() {
 		return "Cell [position=" + position + "]";
+	}
+
+	public Obstacle convertObstacle(){
+		if(!(gameElement instanceof Obstacle)){
+			return null;
+		}
+		return (Obstacle)gameElement;
 	}
 
 }

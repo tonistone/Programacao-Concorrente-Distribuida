@@ -1,16 +1,11 @@
 package game;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-
-import environment.LocalBoard;
-import gui.SnakeGui;
 import environment.Board;
 import environment.BoardPosition;
 import environment.Cell;
@@ -52,13 +47,13 @@ public abstract class Snake extends Thread implements Serializable {
 		return cells;
 	}
 
-	protected void move(Cell cell) throws InterruptedException {
+	protected void move(Cell cell){
 		snakeLock.lock();
 		try {
 			Cell head = cells.getFirst();
 			BoardPosition roadToGoal = getDistanceToGoal(cell);
 			boolean canMove = board.getNeighboringPositions(cell).contains(roadToGoal);
-			if (canMove) {
+			//if (canMove) { acho que isto nao é necessario
 				head = board.getCell(roadToGoal);
 				head.request(this);
 				cells.addFirst(head);
@@ -71,11 +66,13 @@ public abstract class Snake extends Thread implements Serializable {
 						cells.getLast().release();
 						cells.removeLast();
 					}
-			}
+			//}
 			
 			board.setChanged();
 			cellAvailable.signalAll();
 		
+		} catch (InterruptedException e) {
+			System.out.println("FUI INTERROMPIDA");
 		} finally {
 			snakeLock.unlock();
 		}
@@ -100,6 +97,33 @@ public abstract class Snake extends Thread implements Serializable {
 				}
 			}
 		}
+		return nextPosition;
+	}
+
+
+		private synchronized BoardPosition getDistanceToUnoccupiedGoal(Cell cell) {
+		List<BoardPosition> neighboringPositions = board.getNeighboringPositions(cell);
+		BoardPosition nextPosition = null;
+		BoardPosition goalPosition = board.getGoalPosition();
+		
+		// Calcule a distância entre cada posição vizinha e o objetivo
+		for (BoardPosition vizinho : neighboringPositions) {
+			System.out.println("for - " + vizinho);
+			// Verifique se a posição vizinha não está ocupada pela cobra
+			System.out.println(!board.getCell(vizinho).isOcupiedByDeadObstacle());
+			if ((!board.getCell(vizinho).isOcupiedByDeadObstacle()) && (!board.getCell(vizinho).isOcupiedBySnake())) { 
+				System.out.println("ENTREi");
+				double distance = vizinho.distanceTo(goalPosition);
+				double minDistance = distance;
+				nextPosition= vizinho;
+				System.out.println(vizinho);
+				if (distance < minDistance) {
+					minDistance = distance;
+					nextPosition = vizinho;
+				}
+			}
+		}
+		System.out.println("NEXT POS in dsitance: " + nextPosition);
 		return nextPosition;
 	}
 
@@ -137,17 +161,17 @@ public abstract class Snake extends Thread implements Serializable {
 	public synchronized void resetDirection() throws InterruptedException {
 		// Verifica as posições vizinhas após a interrupção
 					Cell head = cells.getFirst();
-					BoardPosition nextPosition = getDistanceToGoal(head);
+					System.out.println("HEAD : " + head);
+					BoardPosition nextPosition = getDistanceToUnoccupiedGoal(head);
+					System.out.println("NEXT POS resetdirection : " + nextPosition);
 					if(nextPosition != null) {
 						Cell newHead = board.getCell(nextPosition);
-						if (!newHead.isOcupied()) {
-							System.out.println("Entrei no if");
-							head = newHead;
-							newHead.request(this);
-							System.out.println("Posição da minha cell: " + newHead);
-							cells.addFirst(newHead);
-							move(newHead);
-						}
+						head = newHead;
+						System.out.println("HEAD : " + head);
+						System.out.println("eu estou no reset e esta é a posição onde quero ir " + head);
+						head.request(this);
+						cells.addFirst(head);
+						move(head);
 					}
 					cells.getLast().release();
 					cells.removeLast();
