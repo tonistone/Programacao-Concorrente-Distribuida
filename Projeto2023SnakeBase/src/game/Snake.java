@@ -52,8 +52,6 @@ public abstract class Snake extends Thread implements Serializable {
 		try {
 			Cell head = cells.getFirst();
 			BoardPosition roadToGoal = getDistanceToGoal(cell);
-			boolean canMove = board.getNeighboringPositions(cell).contains(roadToGoal);
-			//if (canMove) { acho que isto nao é necessario
 				head = board.getCell(roadToGoal);
 				head.request(this);
 				cells.addFirst(head);
@@ -66,7 +64,6 @@ public abstract class Snake extends Thread implements Serializable {
 						cells.getLast().release();
 						cells.removeLast();
 					}
-			//}
 			
 			board.setChanged();
 			cellAvailable.signalAll();
