@@ -24,6 +24,7 @@ public abstract class Snake extends Thread implements Serializable {
 	private int id;
 	private Board board;
 	private Lock snakeLock = new ReentrantLock();
+	private Lock resetLock = new ReentrantLock();
 	private Condition cellAvailable = snakeLock.newCondition();
 
 	public Snake(int id, Board board) {
@@ -47,27 +48,27 @@ public abstract class Snake extends Thread implements Serializable {
 		return cells;
 	}
 
-	protected void move(Cell cell){
+	protected void move(Cell cell) {
 		snakeLock.lock();
 		try {
 			Cell head = cells.getFirst();
 			BoardPosition roadToGoal = getDistanceToGoal(cell);
-				head = board.getCell(roadToGoal);
-				head.request(this);
-				cells.addFirst(head);
-				
-				if (head.isOcupiedByGoal()) {
-					int valor = head.captureGoal();
-					size += valor - 1;
-				}
-					if (cells.size() > size) {
-						cells.getLast().release();
-						cells.removeLast();
-					}
-			
+			head = board.getCell(roadToGoal);
+			head.request(this);
+			cells.addFirst(head);
+
+			if (head.isOcupiedByGoal()) {
+				int valor = head.captureGoal();
+				size += valor - 1;
+			}
+			if (cells.size() > size) {
+				cells.getLast().release();
+				cells.removeLast();
+			}
+
 			board.setChanged();
 			cellAvailable.signalAll();
-		
+
 		} catch (InterruptedException e) {
 			System.out.println("FUI INTERROMPIDA");
 		} finally {
@@ -82,7 +83,7 @@ public abstract class Snake extends Thread implements Serializable {
 		double minDistance = Double.MAX_VALUE;
 		BoardPosition nextPosition = null;
 		BoardPosition goalPosition = board.getGoalPosition();
-		
+
 		// Calcule a distância entre cada posição vizinha e o objetivo
 		for (BoardPosition vizinho : neighboringPositions) {
 			// Verifique se a posição vizinha não está ocupada pela cobra
@@ -97,30 +98,35 @@ public abstract class Snake extends Thread implements Serializable {
 		return nextPosition;
 	}
 
-
-		private synchronized BoardPosition getDistanceToUnoccupiedGoal(Cell cell) {
+	private BoardPosition getDistanceToUnoccupiedGoal(Cell cell) {
 		List<BoardPosition> neighboringPositions = board.getNeighboringPositions(cell);
 		BoardPosition nextPosition = null;
 		BoardPosition goalPosition = board.getGoalPosition();
-		
+
 		// Calcule a distância entre cada posição vizinha e o objetivo
 		for (BoardPosition vizinho : neighboringPositions) {
 			System.out.println("for - " + vizinho);
 			// Verifique se a posição vizinha não está ocupada pela cobra
 			System.out.println(!board.getCell(vizinho).isOcupiedByDeadObstacle());
-			if ((!board.getCell(vizinho).isOcupiedByDeadObstacle()) && (!board.getCell(vizinho).isOcupiedBySnake())) { 
-				System.out.println("ENTREi");
-				double distance = vizinho.distanceTo(goalPosition);
-				double minDistance = distance;
-				nextPosition= vizinho;
-				System.out.println(vizinho);
-				if (distance < minDistance) {
-					minDistance = distance;
+			resetLock.lock();
+			try {
+				if ((!board.getCell(vizinho).isOcupiedByDeadObstacle())
+						&& (!board.getCell(vizinho).isOcupiedBySnake())) {
+					System.out.println("ENTREi");
+					double distance = vizinho.distanceTo(goalPosition);
+					double minDistance = distance;
 					nextPosition = vizinho;
+					System.out.println(vizinho);
+					if (distance < minDistance) {
+						minDistance = distance;
+						nextPosition = vizinho;
+					}
 				}
+			} finally {
+				resetLock.unlock();
 			}
 		}
-		System.out.println("NEXT POS in dsitance: " + nextPosition);
+		System.out.println("NEXT POS in distance: " + nextPosition);
 		return nextPosition;
 	}
 
@@ -154,25 +160,29 @@ public abstract class Snake extends Thread implements Serializable {
 		return board;
 	}
 
-
-	public synchronized void resetDirection() throws InterruptedException {
+	public void resetDirection() throws InterruptedException {
 		// Verifica as posições vizinhas após a interrupção
-					Cell head = cells.getFirst();
-					System.out.println("HEAD : " + head);
-					BoardPosition nextPosition = getDistanceToUnoccupiedGoal(head);
-					System.out.println("NEXT POS resetdirection : " + nextPosition);
-					if(nextPosition != null) {
-						Cell newHead = board.getCell(nextPosition);
-						head = newHead;
-						System.out.println("HEAD : " + head);
-						System.out.println("eu estou no reset e esta é a posição onde quero ir " + head);
-						head.request(this);
-						cells.addFirst(head);
-						move(head);
-					}
-					cells.getLast().release();
-					cells.removeLast();
-					board.setChanged();
+		Cell head = cells.getFirst();
+		System.out.println("HEAD : " + head);
+		BoardPosition nextPosition = getDistanceToUnoccupiedGoal(head);
+		System.out.println("NEXT POS resetdirection : " + nextPosition);
+		if (nextPosition != null) {
+			resetLock.lock();
+			try {
+				Cell newHead = board.getCell(nextPosition);
+				head = newHead;
+				System.out.println("HEAD : " + head);
+				System.out.println("eu estou no reset e esta é a posição onde quero ir " + head);
+				head.request(this);
+				cells.addFirst(head);
+				move(head);
+			} finally {
+				resetLock.unlock();
+			}
+		}
+		cells.getLast().release();
+		cells.removeLast();
+		board.setChanged();
 	}
 
 }
