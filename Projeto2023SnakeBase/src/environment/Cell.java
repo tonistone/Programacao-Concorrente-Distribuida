@@ -24,8 +24,9 @@ public class Cell {
 	private BoardPosition position;
 	private Snake ocuppyingSnake = null;
 	private GameElement gameElement = null;
-	private Lock cellLock = new ReentrantLock();
-	private Condition snakeMoved = cellLock.newCondition();
+	private Lock sharedLock = new ReentrantLock();
+	private Condition snakeMoved = sharedLock.newCondition();
+	
 
 	public synchronized GameElement getGameElement() {
 		return gameElement;
@@ -41,25 +42,26 @@ public class Cell {
 	}
 
 	public void request(Snake snake) throws InterruptedException {
-		cellLock.lock();
+		sharedLock.lock();
 		try {
 			while (isOcupied() && (ocuppyingSnake != snake || ocuppyingSnake == null)) {
 				System.out.println("WAITING");
 				snakeMoved.await();
 			}
 			ocuppyingSnake = snake;
+			snakeMoved.signalAll();
 		} finally {
-			cellLock.unlock();
+			sharedLock.unlock();
 		}
 	}
 
 	public void release() {
-		cellLock.lock();
+		sharedLock.lock();
 		try {
 			ocuppyingSnake = null;
 			snakeMoved.signalAll();
 		} finally {
-			cellLock.unlock();
+			sharedLock.unlock();
 		}
 	}
 
@@ -96,12 +98,12 @@ public class Cell {
 	}
 
 	public void removeObstacle() {
-		cellLock.lock();
+		sharedLock.lock();
 		try {
 			gameElement = null;
 			snakeMoved.signalAll();
 		} finally {
-			cellLock.unlock();
+			sharedLock.unlock();
 		}
 	}
 

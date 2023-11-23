@@ -29,7 +29,7 @@ public class AutomaticSnake extends Snake {
 				move(cells.getFirst());
 			}
 		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
+			System.out.println("Interrompi cobra automatica");
 		}
 	}
 }

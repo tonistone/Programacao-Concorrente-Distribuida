@@ -56,7 +56,7 @@ public class SnakeGui implements Observer {
 			public void actionPerformed(ActionEvent e) {
 				for (Snake snake : board.getSnakes()) {
 					snake.interrupt();
-					System.out.println("Interrompi as snakes");
+					//System.out.println("Interrompi as snakes");
 					try {
 						snake.resetDirection();
 					} catch (InterruptedException e1) {
