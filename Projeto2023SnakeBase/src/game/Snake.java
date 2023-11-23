@@ -74,7 +74,13 @@ public abstract class Snake extends Thread implements Serializable {
 			board.setChanged();
 
 		} catch (InterruptedException e) {
-			System.out.println("FUI INTERROMPIDA");
+			System.out.println("FUI INTERROMPIDA " + threadId());
+			try {
+				resetDirection();
+			} catch (InterruptedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 		} finally {
 			sharedLock.unlock();
 		}
@@ -111,8 +117,8 @@ public abstract class Snake extends Thread implements Serializable {
 		for (BoardPosition vizinho : neighboringPositions) {
 			//System.out.println("for - " + vizinho);
 			// Verifique se a posição vizinha não está ocupada pela cobra
-			//System.out.println(!board.getCell(vizinho).isOcupiedByDeadObstacle());
-			sharedLock.lock();
+			System.out.println(!board.getCell(vizinho).isOcupiedByDeadObstacle());
+			resetLock.lock();
 			try {
 				if ((!board.getCell(vizinho).isOcupiedByDeadObstacle())
 						&& (!board.getCell(vizinho).isOcupiedBySnake())) {
@@ -170,13 +176,14 @@ public abstract class Snake extends Thread implements Serializable {
 		System.out.println("HEAD : " + head);
 		BoardPosition nextPosition = getDistanceToUnoccupiedGoal(head);
 		System.out.println("NEXT POS resetdirection : " + nextPosition);
-		resetLock.lock();
+		if (nextPosition != null) {
+			resetLock.lock();
 			try {
 		if (nextPosition != null) {
 				Cell newHead = board.getCell(nextPosition);
 				head = newHead;
-				System.out.println("HEAD : " + head);
-				System.out.println("eu estou no reset e esta é a posição onde quero ir " + head);
+				//System.out.println("HEAD : " + head);
+				//System.out.println("eu estou no reset e esta é a posição onde quero ir " + head);
 				head.request(this);
 				cells.addFirst(head);
 				move(head);
