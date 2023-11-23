@@ -74,13 +74,7 @@ public abstract class Snake extends Thread implements Serializable {
 			board.setChanged();
 
 		} catch (InterruptedException e) {
-			System.out.println("FUI INTERROMPIDA " + threadId());
-			try {
-				resetDirection();
-			} catch (InterruptedException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
+			System.out.println("FUI INTERROMPIDA ");
 		} finally {
 			sharedLock.unlock();
 		}
@@ -118,7 +112,7 @@ public abstract class Snake extends Thread implements Serializable {
 			//System.out.println("for - " + vizinho);
 			// Verifique se a posição vizinha não está ocupada pela cobra
 			System.out.println(!board.getCell(vizinho).isOcupiedByDeadObstacle());
-			resetLock.lock();
+			sharedLock.lock();
 			try {
 				if ((!board.getCell(vizinho).isOcupiedByDeadObstacle())
 						&& (!board.getCell(vizinho).isOcupiedBySnake())) {
