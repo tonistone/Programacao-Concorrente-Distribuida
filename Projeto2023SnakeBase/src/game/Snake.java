@@ -26,7 +26,6 @@ public abstract class Snake extends Thread implements Serializable {
 	private Board board;
 	private Lock sharedLock = new ReentrantLock();
 	private Condition snakeMoved = sharedLock.newCondition();
-	private boolean interruptedByGoal = false;
 
 	public Snake(int id, Board board) {
 		this.id = id;
@@ -49,10 +48,6 @@ public abstract class Snake extends Thread implements Serializable {
 		return cells;
 	}
 
-    public boolean hasReachedGoal() {
-        return interruptedByGoal;
-    }
-
 	protected void move(Cell cell) throws InterruptedException {
 		sharedLock.lock();
 		try {
@@ -74,8 +69,10 @@ public abstract class Snake extends Thread implements Serializable {
 
 				if (valor == Goal.MAX_VALUE && head.getPosition().equals(board.getGoalPosition())) {
 					System.out.println("Goal reached! All snakes are interrupted.");
+					board.markGoalReached();
+					System.out.println(board.hasReachedGoal());
 					interruptAllSnakes(); // Interrompe todas as cobras
-					interruptedByGoal = true;
+
 				}
 			}
 			if (cells.size() > size) {
@@ -87,7 +84,10 @@ public abstract class Snake extends Thread implements Serializable {
 
 		} catch (InterruptedException e) {
 			System.out.println("FUI INTERROMPIDA ");
-				resetDirectionInInterrupt();
+            System.out.println(board.hasReachedGoal());
+            if (!board.hasReachedGoal()) {
+                resetDirectionInInterrupt();
+            }
 		} finally {
 			sharedLock.unlock();
 		}
@@ -124,7 +124,7 @@ public abstract class Snake extends Thread implements Serializable {
 		for (BoardPosition vizinho : neighboringPositions) {
 			// System.out.println("for - " + vizinho);
 			// Verifique se a posição vizinha não está ocupada pela cobra
-			System.out.println(!board.getCell(vizinho).isOcupiedByDeadObstacle());
+			// System.out.println(!board.getCell(vizinho).isOcupiedByDeadObstacle());
 			sharedLock.lock();
 			try {
 				if ((!board.getCell(vizinho).isOcupiedByDeadObstacle())
@@ -187,18 +187,23 @@ public abstract class Snake extends Thread implements Serializable {
 			Cell newHead = board.getCell(nextPosition);
 			sharedLock.lock();
 			try {
-				if (newHead != cells.getLast() || isCollisionWithOtherSnake(newHead)) {
-
-					if (!this.equals(newHead.getOcuppyingSnake())) {
-						head = newHead;
-						head.request(this);
-						cells.addFirst(head);
-						move(head);
+				// Verificar se a nova posição não está ocupada pela cobra que atingiu o
+				// objetivo
+				if (!newHead.isOcupiedByGoal()) {
+					// Verificar se a nova posição não está ocupada por outra cobra
+					if (newHead != cells.getLast() || isCollisionWithOtherSnake(newHead)) {
+						if (!this.equals(newHead.getOcuppyingSnake())) {
+							head = newHead;
+							head.request(this);
+							cells.addFirst(head);
+							move(head);
+						}
 					}
 				}
 			} finally {
 				sharedLock.unlock();
 			}
+
 			cells.getLast().release();
 			cells.removeLast();
 			board.setChanged();
@@ -218,9 +223,7 @@ public abstract class Snake extends Thread implements Serializable {
 
 	private void interruptAllSnakes() {
 		for (Snake snake : board.getSnakes()) {
-			if (!snake.hasReachedGoal()) {
-                snake.interrupt();
-            }
+			snake.interrupt();
 		}
 	}
 }

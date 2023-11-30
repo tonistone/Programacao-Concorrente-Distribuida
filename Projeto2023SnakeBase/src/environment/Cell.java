@@ -43,20 +43,9 @@ public class Cell {
 	public void request(Snake snake) throws InterruptedException {
 		sharedLock.lock();
 		try {
-			/* if (snake.hasReachedGoal()) {
-				System.out.println("Entrei");
-				return;
-			} */
-			 if (!snake.hasReachedGoal()) {
 			while (isOcupied() && (ocuppyingSnake != snake || ocuppyingSnake == null)) {
-				
 				System.out.println("WAITING");
 				snakeMoved.await();
-
-			}
-			} else {
-				System.out.println("Entrei");
-				return;
 			}
 			ocuppyingSnake = snake;
 			snakeMoved.signalAll();
