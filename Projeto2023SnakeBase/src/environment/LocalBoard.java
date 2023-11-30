@@ -25,10 +25,9 @@ import game.AutomaticSnake;
 public class LocalBoard extends Board {
 
 	private static final int NUM_SNAKES = 2;
-	private static final int NUM_OBSTACLES = 25;
+	private static final int NUM_OBSTACLES = 0;
 	private static final int NUM_SIMULTANEOUS_MOVING_OBSTACLES = 3;
 	ExecutorService pool = Executors.newFixedThreadPool(NUM_SIMULTANEOUS_MOVING_OBSTACLES);
-	private Goal goal;
 
 	public LocalBoard() {
 
@@ -39,7 +38,7 @@ public class LocalBoard extends Board {
 
 		addObstacles(NUM_OBSTACLES);
 
-		goal = addGoal();
+		addGoal();
 		// System.err.println("All elements placed");
 	}
 
@@ -55,18 +54,6 @@ public class LocalBoard extends Board {
 		}
 		pool.shutdown();
 		setChanged();
-
-		try {
-			goal.getcountDown().await();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-
-		for (Snake s : snakes) {
-			s.interrupt();
-		}
-
-		System.out.println("Barreira quebrada");
 	}
 
 

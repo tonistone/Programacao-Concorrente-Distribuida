@@ -26,7 +26,6 @@ public class Cell {
 	private GameElement gameElement = null;
 	private Lock sharedLock = new ReentrantLock();
 	private Condition snakeMoved = sharedLock.newCondition();
-	
 
 	public synchronized GameElement getGameElement() {
 		return gameElement;
@@ -44,9 +43,20 @@ public class Cell {
 	public void request(Snake snake) throws InterruptedException {
 		sharedLock.lock();
 		try {
+			/* if (snake.hasReachedGoal()) {
+				System.out.println("Entrei");
+				return;
+			} */
+			 if (!snake.hasReachedGoal()) {
 			while (isOcupied() && (ocuppyingSnake != snake || ocuppyingSnake == null)) {
+				
 				System.out.println("WAITING");
 				snakeMoved.await();
+
+			}
+			} else {
+				System.out.println("Entrei");
+				return;
 			}
 			ocuppyingSnake = snake;
 			snakeMoved.signalAll();
@@ -107,7 +117,6 @@ public class Cell {
 		}
 	}
 
-
 	public Goal getGoal() {
 		return (Goal) gameElement;
 	}
@@ -120,9 +129,9 @@ public class Cell {
 		return (gameElement != null && gameElement instanceof Obstacle);
 	}
 
-	public synchronized boolean isOcupiedByDeadObstacle(){
+	public synchronized boolean isOcupiedByDeadObstacle() {
 		Obstacle o = convertObstacle();
-		return (isOcupiedByObstacle() && o.getRemainingMoves()==0);
+		return (isOcupiedByObstacle() && o.getRemainingMoves() == 0);
 	}
 
 	@Override
@@ -130,11 +139,11 @@ public class Cell {
 		return "Cell [position=" + position + "]";
 	}
 
-	public Obstacle convertObstacle(){
-		if(!(gameElement instanceof Obstacle)){
+	public Obstacle convertObstacle() {
+		if (!(gameElement instanceof Obstacle)) {
 			return null;
 		}
-		return (Obstacle)gameElement;
+		return (Obstacle) gameElement;
 	}
 
 }

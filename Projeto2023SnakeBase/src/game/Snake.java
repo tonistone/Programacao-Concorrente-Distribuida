@@ -3,6 +3,7 @@ package game;
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -23,9 +24,9 @@ public abstract class Snake extends Thread implements Serializable {
 	protected int size = 5;
 	private int id;
 	private Board board;
-	private boolean waiting = false;
 	private Lock sharedLock = new ReentrantLock();
 	private Condition snakeMoved = sharedLock.newCondition();
+	private boolean interruptedByGoal = false;
 
 	public Snake(int id, Board board) {
 		this.id = id;
@@ -48,15 +49,20 @@ public abstract class Snake extends Thread implements Serializable {
 		return cells;
 	}
 
-	protected void move(Cell cell) {
+    public boolean hasReachedGoal() {
+        return interruptedByGoal;
+    }
+
+	protected void move(Cell cell) throws InterruptedException {
 		sharedLock.lock();
 		try {
 			Cell head = cells.getFirst();
 			BoardPosition roadToGoal = getDistanceToGoal(cell);
 			head = board.getCell(roadToGoal);
 			head.request(this);
-			//aguardar o notify do request a dizer que a cobra foi para outra célula
-			while(!head.isOcupied()) {
+
+			// aguardar o notify do request a dizer que a cobra foi para outra célula
+			while (!head.isOcupied()) {
 				System.out.println("WAITING FOR CONFIRMATION");
 				snakeMoved.await();
 			}
@@ -65,6 +71,12 @@ public abstract class Snake extends Thread implements Serializable {
 			if (head.isOcupiedByGoal()) {
 				int valor = head.captureGoal();
 				size += valor - 1;
+
+				if (valor == Goal.MAX_VALUE && head.getPosition().equals(board.getGoalPosition())) {
+					System.out.println("Goal reached! All snakes are interrupted.");
+					interruptAllSnakes(); // Interrompe todas as cobras
+					interruptedByGoal = true;
+				}
 			}
 			if (cells.size() > size) {
 				cells.getLast().release();
@@ -75,6 +87,7 @@ public abstract class Snake extends Thread implements Serializable {
 
 		} catch (InterruptedException e) {
 			System.out.println("FUI INTERROMPIDA ");
+				resetDirectionInInterrupt();
 		} finally {
 			sharedLock.unlock();
 		}
@@ -109,28 +122,28 @@ public abstract class Snake extends Thread implements Serializable {
 
 		// Calcule a distância entre cada posição vizinha e o objetivo
 		for (BoardPosition vizinho : neighboringPositions) {
-			//System.out.println("for - " + vizinho);
+			// System.out.println("for - " + vizinho);
 			// Verifique se a posição vizinha não está ocupada pela cobra
 			System.out.println(!board.getCell(vizinho).isOcupiedByDeadObstacle());
 			sharedLock.lock();
 			try {
 				if ((!board.getCell(vizinho).isOcupiedByDeadObstacle())
 						&& (!board.getCell(vizinho).isOcupiedBySnake())) {
-					//System.out.println("ENTREi");
+					// System.out.println("ENTREi");
 					double distance = vizinho.distanceTo(goalPosition);
 					double minDistance = distance;
 					nextPosition = vizinho;
-					//System.out.println(vizinho);
+					// System.out.println(vizinho);
 					if (distance < minDistance) {
 						minDistance = distance;
 						nextPosition = vizinho;
 					}
-				} 
+				}
 			} finally {
 				sharedLock.unlock();
 			}
 		}
-		//System.out.println("NEXT POS in distance: " + nextPosition);
+		// System.out.println("NEXT POS in distance: " + nextPosition);
 		return nextPosition;
 	}
 
@@ -164,76 +177,50 @@ public abstract class Snake extends Thread implements Serializable {
 		return board;
 	}
 
-	/* public void resetDirection() throws InterruptedException {
+	private void resetDirectionInInterrupt() throws InterruptedException {
 		// Verifica as posições vizinhas após a interrupção
 		Cell head = cells.getFirst();
-		System.out.println("HEAD : " + head);
-		BoardPosition nextPosition = getDistanceToUnoccupiedGoal(head);
-		System.out.println("NEXT POS resetdirection : " + nextPosition);
-		if (nextPosition != null) {
-			resetLock.lock();
-			try {
-		if (nextPosition != null) {
-				Cell newHead = board.getCell(nextPosition);
-				head = newHead;
-				//System.out.println("HEAD : " + head);
-				//System.out.println("eu estou no reset e esta é a posição onde quero ir " + head);
-				head.request(this);
-				cells.addFirst(head);
-				move(head);
-		}
-		} finally {
-				resetLock.unlock();
-			}
-		cells.getLast().release();
-		cells.removeLast();
-		board.setChanged();
-	} */
 
-	public void resetDirection() throws InterruptedException {
-		// Verifica as posições vizinhas após a interrupção
-		Cell head = cells.getFirst();
-		//System.out.println("HEAD : " + head);
 		BoardPosition nextPosition = getDistanceToUnoccupiedGoal(head);
-		//System.out.println("NEXT POS resetdirection : " + nextPosition);
+
 		if (nextPosition != null) {
 			Cell newHead = board.getCell(nextPosition);
 			sharedLock.lock();
 			try {
-				if (newHead != cells.getLast() ||  isCollisionWithOtherSnake(newHead)) {
+				if (newHead != cells.getLast() || isCollisionWithOtherSnake(newHead)) {
 
 					if (!this.equals(newHead.getOcuppyingSnake())) {
-					head = newHead;
-					//System.out.println("HEAD : " + head);
-					//System.out.println("eu estou no reset e esta é a posição onde quero ir " + head);
-					head.request(this);
-					cells.addFirst(head);
-					move(head);
+						head = newHead;
+						head.request(this);
+						cells.addFirst(head);
+						move(head);
 					}
-				/* } else {
-					if (!this.equals(newHead.getOcuppyingSnake())) {
-					head.request(this);
-					} */
 				}
 			} finally {
-				// Libere o lock no bloco finally para garantir que seja liberado, mesmo em caso
-				// de exceção
 				sharedLock.unlock();
 			}
 			cells.getLast().release();
 			cells.removeLast();
-			//move(head);
 			board.setChanged();
 		}
 	}
 
 	private boolean isCollisionWithOtherSnake(Cell newHead) {
-		// Iterar sobre as outras cobras e verificar se a nova posição da cabeça colide com alguma outra cabeça
+		// Iterar sobre as outras cobras e verificar se a nova posição da cabeça colide
+		// com alguma outra cabeça
 		for (Snake otherSnake : board.getSnakes()) {
 			if (newHead.getPosition().equals(otherSnake.getPath().getFirst())) {
 				return true; // Colisão com outra cobra
 			}
 		}
 		return false; // Não há colisão com outras cobras
+	}
+
+	private void interruptAllSnakes() {
+		for (Snake snake : board.getSnakes()) {
+			if (!snake.hasReachedGoal()) {
+                snake.interrupt();
+            }
+		}
 	}
 }

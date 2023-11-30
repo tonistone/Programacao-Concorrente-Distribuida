@@ -12,9 +12,7 @@ import environment.Cell;
 public class Goal extends GameElement {
 	private int value = 1;
 	private Board board;
-	public static final int MAX_VALUE = 10;
-	private Lock lock = new ReentrantLock();
-	private CountDownLatch cdl = new CountDownLatch(9);
+	public static final int MAX_VALUE = 5;
 
 	public Goal(Board board2) {
 		super();
@@ -34,7 +32,6 @@ public class Goal extends GameElement {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			cdl.countDown();
 			releaseLock();
 		}
 
@@ -56,10 +53,5 @@ public class Goal extends GameElement {
 		}
 		return value;
 	}
-
-	public CountDownLatch getcountDown() {
-		return cdl;
-	}
-
 }
 
