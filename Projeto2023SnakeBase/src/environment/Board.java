@@ -12,7 +12,7 @@ import game.Goal;
 import game.Obstacle;
 import game.Snake;
 
-public abstract class Board extends Observable {
+public abstract class Board extends Observable implements Serializable {
 	protected Cell[][] cells;
 	private BoardPosition goalPosition;
 	public static final long PLAYER_PLAY_INTERVAL = 100;

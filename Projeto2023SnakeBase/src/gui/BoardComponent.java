@@ -8,7 +8,8 @@ import game.Goal;
 import game.HumanSnake;
 import game.Obstacle;
 import game.Snake;
-import game.AutomaticSnake;
+import remote.RemoteBoard;
+
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
@@ -29,9 +30,11 @@ public class BoardComponent extends JComponent implements KeyListener{
 
 	private Board board;
 	private Image obstacleImage;
+	private RemoteBoard remoteBoard;
 
 	public BoardComponent(Board board) {
 		this.board = board;
+		this.board = remoteBoard;
 		obstacleImage=new ImageIcon(getClass().getResource("/obstacle.png")).getImage();
 		// Necessary for key listener
 		setFocusable(true);

@@ -15,64 +15,17 @@ import gui.BoardComponent;
 import remote.RemoteBoard;
 
 public class Server {
-	// TODO
-	private BufferedReader in;
-	private ObjectOutputStream out;
-	public static final int PORTO = 8080;
-	
-	public static void main(String[] args) {
-		try {
-			new Server().startServing();
-		} catch (IOException e) {
-			// ...
-		}
-	}
+    // TODO
+    public static final int PORTO = 8080;
+    private BufferedReader in;
+    private ObjectOutputStream out;
 
-	public void startServing() throws IOException {
-		ServerSocket ss = new ServerSocket(PORTO);
-		try {
-			while(true){
-				Socket socket = ss.accept();
-				System.out.println("Client connected: " + socket.getInetAddress());
+    public class DealWithClient extends Thread {
+        public final Socket socket;
 
-				try {
-					Thread.sleep(Board.REMOTE_REFRESH_INTERVAL);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				new DealWithClient(socket, remote).start();
-			}			
-		} finally {
-			ss.close();
-		}
-	}
-
-	private void sendGameState(Socket socket, RemoteBoard remoteBoard) {
-        try (ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream())) {
-            // Envia o estado do jogo para o cliente
-            out.writeObject(remoteBoard.getGameState());
-            out.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-	private class DealWithClient extends Thread {
-        private BufferedReader in;
-        private ObjectOutputStream out;
-        private RemoteBoard remoteBoard;
-
-        public DealWithClient(Socket socket, RemoteBoard remoteBoard) throws IOException {
-            this.remoteBoard = remoteBoard;
+        public DealWithClient(Socket socket) throws IOException {
+            this.socket = socket;
             doConnections(socket);
-        }
-
-        void doConnections(Socket socket) throws IOException {
-            // Recebe texto
-            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            // Envia objetos
-            out = new ObjectOutputStream(socket.getOutputStream());
         }
 
         @Override
@@ -84,19 +37,93 @@ public class Server {
             }
         }
 
+        private void doConnections(Socket socket) throws IOException {
+            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            out = new ObjectOutputStream(socket.getOutputStream());
+        }
+
         private void serve() throws IOException {
-            while (true) {
-                String str = in.readLine();
-                if (str.equals("FIM"))
-                    break;
-                System.out.println("Eco:" + str);
-                MyObject myObject = new MyObject(str);
-                out.writeObject(myObject);
-                out.flush();
-                // Object Streams usam cache: necessário fazer reset antes do reenvio se dados mudam;
+            // Iniciar thread para receber dados
+            new Thread(new Runnable() {
+
+                @Override
+                public void run() {
+                    try {
+                        receiveMessages();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
+
+            // Iniciar thread para enviar dados
+            new Thread(new Runnable() {
+
+                @Override
+                public void run() {
+                    try {
+                        sendMessages();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
+        }
+
+        private void receiveMessages() throws IOException {
+            try {
+                while (!socket.isClosed()) {
+                    if (in.ready()) {
+                        String receivedMessage = in.readLine();
+                        if (receivedMessage.equals("FIM"))
+                            break;
+                        System.out.println("Received: " + receivedMessage);
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        private void sendMessages() throws IOException, InterruptedException {
+
+            while (!socket.isClosed()) {
+                // Lógica para enviar o estado do jogo
+                /*
+                 * RemoteBoard gameData = getUpdatedGameData(); // Método fictício para obter o
+                 * estado atualizado
+                 * out.writeObject(gameData);
+                 * out.flush();
+                 */
+
+                // Reset ao objeto para garantir a serialização correta do mesmo
                 out.reset();
+
+                // Intervalo antes de enviar
+                Thread.sleep(Board.REMOTE_REFRESH_INTERVAL);
             }
         }
     }
-}
 
+    public static void main(String[] args) {
+        try {
+            new Server().startServing();
+        } catch (IOException e) {
+            // ...
+        }
+    }
+
+    public void startServing() throws IOException {
+        ServerSocket ss = new ServerSocket(PORTO);
+        try {
+            while (true) {
+                Socket socket = ss.accept();
+                new DealWithClient(socket).start();
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        } finally {
+            ss.close();
+        }
+    }
+}

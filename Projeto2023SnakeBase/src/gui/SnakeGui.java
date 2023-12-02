@@ -18,6 +18,7 @@ import environment.BoardPosition;
 import environment.Cell;
 import environment.LocalBoard;
 import game.Snake;
+import remote.RemoteBoard;
 /**
  *  Class to create and configure GUI.
  *  Only the listener to the button should be edited, see TODO below.
