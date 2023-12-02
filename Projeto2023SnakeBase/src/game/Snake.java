@@ -56,11 +56,6 @@ public abstract class Snake extends Thread implements Serializable {
 			head = board.getCell(roadToGoal);
 			head.request(this);
 
-			// aguardar o notify do request a dizer que a cobra foi para outra célula
-			while (!head.isOcupied()) {
-				System.out.println("WAITING FOR CONFIRMATION");
-				snakeMoved.await();
-			}
 			cells.addFirst(head);
 
 			if (head.isOcupiedByGoal()) {
