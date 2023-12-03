@@ -10,10 +10,17 @@ import game.Server;
 
 public class Main {
 	public static void main(String[] args) {
-		LocalBoard board=new LocalBoard();
-		SnakeGui game = new SnakeGui(board, 600,0);
+		LocalBoard localBoard=new LocalBoard();
+		SnakeGui game = new SnakeGui(localBoard, 600,0);
 		game.init();
 		// Launch server
-		// TODO
+		new Thread(() -> {
+            try {
+                Server server = new Server();
+                server.startServing();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }).start();
 	}
 }

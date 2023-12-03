@@ -9,7 +9,6 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-
 import environment.Board;
 import gui.BoardComponent;
 import remote.RemoteBoard;
@@ -19,6 +18,7 @@ public class Server {
     public static final int PORTO = 8080;
     private BufferedReader in;
     private ObjectOutputStream out;
+    //private RemoteBoard remote;
 
     public class DealWithClient extends Thread {
         public final Socket socket;
@@ -31,6 +31,11 @@ public class Server {
         @Override
         public void run() {
             try {
+                //criar um humanPlayer
+                //HumanSnake humanSnake;
+                //adicionar esse Player ao board
+                //remote.addSnake(humanSnake);
+                //movimento da cobra human
                 serve();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -38,8 +43,8 @@ public class Server {
         }
 
         private void doConnections(Socket socket) throws IOException {
-            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             out = new ObjectOutputStream(socket.getOutputStream());
+            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         }
 
         private void serve() throws IOException {
@@ -89,13 +94,9 @@ public class Server {
 
             while (!socket.isClosed()) {
                 // Lógica para enviar o estado do jogo
-                /*
-                 * RemoteBoard gameData = getUpdatedGameData(); // Método fictício para obter o
-                 * estado atualizado
-                 * out.writeObject(gameData);
-                 * out.flush();
-                 */
-
+                
+                
+                out.flush();
                 // Reset ao objeto para garantir a serialização correta do mesmo
                 out.reset();
 

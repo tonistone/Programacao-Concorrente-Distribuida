@@ -14,6 +14,7 @@ import java.net.Socket;
 
 import environment.Board;
 import environment.LocalBoard;
+import gui.SnakeGui;
 
 /**
  * Remore client, only for part II
@@ -29,15 +30,11 @@ public class Client {
     private Socket socket;
     private RemoteBoard remoteBoard;
 
-    public Client(RemoteBoard remoteBoard) {
-        this.remoteBoard = remoteBoard;
-    }
-
     public void runClient() {
         try {
-            //conectar ao servidor
+            // conectar ao servidor
             connectToServer();
-            //enviar e receber
+            // enviar e receber
             handleConnection();
         } catch (IOException e) {
             e.printStackTrace();
@@ -59,26 +56,15 @@ public class Client {
         in = new ObjectInputStream(socket.getInputStream());
         // Envia texto para o servidor
         out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true);
-
-       
+        //Cria uma instância de RemoteBoard
+        remoteBoard = new RemoteBoard();
+        //inicializa
+        remoteBoard.init();
     }
 
     private void handleConnection() throws IOException {
-         // Iniciar thread para receber dados
+        // Iniciar thread para enviar dados
         new Thread(new Runnable() {
-            
-            @Override
-            public void run() {
-                try {
-                    receiveMessages();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
-       
-       // Iniciar thread para enviar dados
-       new Thread(new Runnable() {
 
             @Override
             public void run() {
@@ -88,42 +74,58 @@ public class Client {
                     e.printStackTrace();
                 }
             }
-       }).start();
+        }).start();
+
+        // Iniciar thread para receber dados
+        new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                try {
+                    receiveMessages();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+
     }
 
     private void receiveMessages() throws IOException {
         try {
-             while (true) {
+            while (true) {
+                //se existir alguma coisa para ler
+                if (in.available() > 0) {
                 // Recebe o estado do jogo do servidor
                 Object receivedObject = in.readObject();
 
                 // Se o objeto recebido for do tipo RemoteBoard
-                if (receivedObject instanceof RemoteBoard) 
-                     remoteBoard = (RemoteBoard) receivedObject;
+                if (receivedObject instanceof RemoteBoard) {
+                    RemoteBoard receivedRemoteBoard = (RemoteBoard) receivedObject;
 
-                // Notifica a mudança para atualizar a interface gráfica
-                remoteBoard.setChanged();
-
-               
-                    Thread.sleep(100);
+                    // Atualiza a instância existente da RemoteBoard
+                    remoteBoard.updateBoardState(receivedRemoteBoard);
+                }
+                Thread.sleep(100);
+            }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-           
+
     }
 
     private void sendMessages() throws IOException {
         try {
-            while(true) {
-
+            while (true) {
+                // String str = remoteBoard.handleKeyPress();
             }
         } catch (Exception e) {
-            // TODO: handle exception
+            e.printStackTrace();
         }
     }
 
-   public static void main(String[] args) {
+    public static void main(String[] args) {
         new Client().runClient();
     }
 }

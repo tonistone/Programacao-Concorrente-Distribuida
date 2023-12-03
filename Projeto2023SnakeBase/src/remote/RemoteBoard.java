@@ -13,6 +13,9 @@ import environment.Cell;
 import game.Goal;
 import game.Obstacle;
 import game.Snake;
+import gui.BoardComponent;
+import gui.SnakeGui;
+
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
@@ -23,34 +26,12 @@ import java.awt.event.KeyListener;
  * @author luismota
  *
  */
-public class RemoteBoard extends Board implements Serializable{
+public class RemoteBoard extends Board implements Serializable {
 	
 
 	@Override
 	public void handleKeyPress(int keyCode) {
 		//TODO
-		switch (keyCode) {
-			case KeyEvent.VK_UP:
-            // Lógica quando a tecla UP é pressionada
-            System.out.println("UP Pressionado");
-            
-            break;
-        case KeyEvent.VK_DOWN:
-            // Lógica quando a tecla DOWN é pressionada
-            System.out.println("DOWN Pressionado");
-            
-            break;
-        case KeyEvent.VK_LEFT:
-            
-            System.out.println("LEFT Pressionado");
-            
-            break;
-        case KeyEvent.VK_RIGHT:
-            // Lógica quando a tecla RIGHT é pressionada
-            System.out.println("RIGHT Pressionado");
-            
-            break;
-		}	
 	}
 
 	@Override
@@ -60,6 +41,26 @@ public class RemoteBoard extends Board implements Serializable{
 
 	@Override
 	public void init() {
-		// TODO 		
+		// TODO 
+		SnakeGui game = new SnakeGui(this, 600, 0);
+        game.init();	
+	
+	}
+
+	public void updateBoardState(RemoteBoard receiveRemoteBoard) {
+		//limpar cobras existentes do remoteBoard
+		getSnakes().clear();
+
+		//limpar obstáculos
+		//getObstacles().clear();
+		
+		//adicionar cobras vindas do servidor
+		for(Snake receivedSnake : receiveRemoteBoard.getSnakes()) {
+			addSnake(receivedSnake);
+		}
+
+		// Notifica a mudança para atualizar a interface gráfica
+		setChanged();
+		notifyObservers();
 	}
 }
