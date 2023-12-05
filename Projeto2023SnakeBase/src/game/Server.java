@@ -80,9 +80,11 @@ public class Server {
                 while (!socket.isClosed()) {
                     if (in.ready()) {
                         String receivedMessage = in.readLine();
-                        if (receivedMessage.equals("FIM"))
+                        System.out.println(receivedMessage);
+                        if (receivedMessage.equals(null))
                             break;
                         System.out.println("Received: " + receivedMessage);
+                        //humanplayer.move(); 
                     }
                 }
             } catch (IOException e) {

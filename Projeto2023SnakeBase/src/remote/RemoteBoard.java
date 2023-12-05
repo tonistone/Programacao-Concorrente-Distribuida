@@ -28,23 +28,30 @@ import java.awt.event.KeyListener;
  */
 public class RemoteBoard extends Board implements Serializable {
 	
-
+    private String keyPressed;
+    private boolean newDirectionPressed = false;	
 	@Override
 	public void handleKeyPress(int keyCode) {
-		//TODO
-	}
+		switch (keyCode) {
+			case KeyEvent.VK_UP:
+                keyPressed="UP";
+                newDirectionPressed = true;
+                break;
 
-	@Override
-	public void handleKeyRelease() {
-		// TODO
-	}
+            case KeyEvent.VK_DOWN:
+                keyPressed="DOWN";
+                newDirectionPressed = true;
+                break;
+            case KeyEvent.VK_LEFT:
+                keyPressed="LEFT"; 
+                newDirectionPressed = true;        
+                break;
 
-	@Override
-	public void init() {
-		// TODO 
-		SnakeGui game = new SnakeGui(this, 600, 0);
-        game.init();	
-	
+            case KeyEvent.VK_RIGHT:   
+                keyPressed="RIGHT";
+                newDirectionPressed = true;         
+                break;
+		}	
 	}
 
 	public void updateBoardState(RemoteBoard receiveRemoteBoard) {
@@ -63,4 +70,25 @@ public class RemoteBoard extends Board implements Serializable {
 		setChanged();
 		notifyObservers();
 	}
+
+    @Override
+    public void init() {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public void handleKeyRelease() {
+    }
+
+    public boolean getnewDirectionPressed() {
+        return newDirectionPressed;
+    }
+
+    public String getKeyPressed() {
+        return keyPressed;
+    }
+
+    public void clearKeyPressed(){
+        keyPressed = null;
+    }
 }

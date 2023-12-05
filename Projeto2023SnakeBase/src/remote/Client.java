@@ -39,17 +39,17 @@ public class Client {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            try {
+            /* try {
                 socket.close();
             } catch (IOException e) {
                 e.printStackTrace();
-            }
+            } */
         }
     }
 
     private void connectToServer() throws IOException {
         InetAddress endereco = InetAddress.getByName(null);
-        System.out.println("Endereco:" + endereco);
+        System.out.println("Endereco no client:" + endereco);
         socket = new Socket(endereco, game.Server.PORTO);
         System.out.println("Socket:" + socket);
         // Recebe objetos vindos do servidor
@@ -64,6 +64,7 @@ public class Client {
 
     private void handleConnection() throws IOException {
         // Iniciar thread para enviar dados
+        System.out.println("HERE");
         new Thread(new Runnable() {
 
             @Override
@@ -118,7 +119,10 @@ public class Client {
     private void sendMessages() throws IOException {
         try {
             while (true) {
-                // String str = remoteBoard.handleKeyPress();
+                System.out.println("sending");
+                if(remoteBoard.getnewDirectionPressed()){
+                    out.println(remoteBoard.getKeyPressed());
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
