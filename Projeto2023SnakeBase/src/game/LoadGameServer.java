@@ -4,17 +4,14 @@ import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
-import environment.BoardPosition;
-import environment.Cell;
-
 public class LoadGameServer implements Serializable {
     
     private static final long serialVersionUID = 1L;
     private LinkedList<ClientSnake> snakes;
-    private List<ObstacleClient> obs;
+    private List<ClientObstacle> obs;
     private ClientGoal goal;
   
-    public LoadGameServer(LinkedList<ClientSnake> snakes, List<ObstacleClient> obs, ClientGoal goal) {
+    public LoadGameServer(LinkedList<ClientSnake> snakes, List<ClientObstacle> obs, ClientGoal goal) {
         this.snakes = snakes;
         this.obs = obs;
         this.goal = goal;
@@ -25,7 +22,7 @@ public class LoadGameServer implements Serializable {
     }
 
 
-    public List<ObstacleClient> getObs() {
+    public List<ClientObstacle> getObs() {
         return obs;
     }
 

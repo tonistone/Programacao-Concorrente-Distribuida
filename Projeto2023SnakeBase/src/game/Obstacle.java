@@ -3,6 +3,7 @@ package game;
 import java.io.Serializable;
 
 import environment.Board;
+import environment.BoardPosition;
 import environment.Cell;
 import environment.LocalBoard;
 
@@ -40,9 +41,4 @@ public class Obstacle extends GameElement {
 		}
 		return true;
 	}
-
-    public Object getPosition() {
-        return null;
-    }
-
 }

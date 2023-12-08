@@ -1,15 +1,11 @@
 package gui;
 
 import environment.LocalBoard;
-import environment.Board;
 import environment.BoardPosition;
-import environment.Cell;
+import game.ClientGoal;
+import game.ClientObstacle;
 import game.ClientSnake;
-import game.Goal;
-import game.HumanSnake;
 import game.LoadGameServer;
-import game.Obstacle;
-import game.Snake;
 import remote.RemoteBoard;
 
 import java.awt.BasicStroke;
@@ -46,45 +42,19 @@ public class BoardComponentClient extends JComponent implements KeyListener {
 		super.paintComponent(g);
 		final double CELL_WIDTH=getHeight()/(double)SnakeGui.NUM_ROWS;
         LoadGameServer load = board.getLoad();
-		//System.err.println("W:"+getWidth()+" H:"+getHeight());
-		/* for (int x = 0; x < LocalBoard.NUM_COLUMNS; x++) {
+
+		 for (int x = 0; x < LocalBoard.NUM_COLUMNS; x++) {
 			for (int y = 0; y < LocalBoard.NUM_ROWS; y++) {
-				//Cell cell = board.getCell(new BoardPosition(x, y));
 				Image image = null;
-				if(cell.getGameElement()!=null) 
-					if(cell.getGameElement() instanceof Obstacle) {
-						Obstacle obstacle=(Obstacle)cell.getGameElement();
-						image = obstacleImage;
-						g.setColor(Color.BLACK);
-						g.drawImage(image, (int)Math.round(cell.getPosition().x* CELL_WIDTH),
-								(int)Math.round(cell.getPosition().y* CELL_WIDTH),
-								(int)Math.round(CELL_WIDTH),(int)Math.round(CELL_WIDTH), null);
-						// write number of remaining moves
-						g.setColor(Color.WHITE);
-						g.setFont(new Font(Font.MONOSPACED,Font.PLAIN,(int)CELL_WIDTH));
-						g.drawString(obstacle.getRemainingMoves()+"", (int)Math.round((cell.getPosition().x+0.15)* CELL_WIDTH), 
-								(int)Math.round((cell.getPosition().y+0.9) * CELL_WIDTH));
-					}
-					else if(cell.getGameElement() instanceof Goal) {
-						Goal goal=(Goal)cell.getGameElement() ;
-						g.setColor(Color.RED);
-						g.setFont(new Font(Font.MONOSPACED,Font.PLAIN,(int)CELL_WIDTH));
-						g.drawString(goal.getValue()+"", (int)Math.round((cell.getPosition().x+0.15)* CELL_WIDTH), 
-								(int)Math.round((cell.getPosition().y+0.9) * CELL_WIDTH));
-					}
-				if (cell.isOcupiedBySnake()) {
-					// different color for human player...
-					if(cell.getOcuppyingSnake() instanceof HumanSnake)
-						g.setColor(Color.ORANGE);
-					else
-						g.setColor(Color.LIGHT_GRAY);
-					g.fillRect((int)Math.round(cell.getPosition().x* CELL_WIDTH), 
-							(int)Math.round(cell.getPosition().y * CELL_WIDTH),
-							(int)Math.round(CELL_WIDTH), (int)Math.round(CELL_WIDTH));
-					
-				}
-			
-				// }
+				// if (cell.isOcupiedBySnake()) {
+				// 	// different color for human player...
+				// 	if(cell.getOcuppyingSnake() instanceof HumanSnake)
+				// 		g.setColor(Color.ORANGE);
+				// 	else
+				// 		g.setColor(Color.LIGHT_GRAY);
+				// 	g.fillRect((int)Math.round(cell.getPosition().x* CELL_WIDTH), 
+				// 			(int)Math.round(cell.getPosition().y * CELL_WIDTH),
+				// 			(int)Math.round(CELL_WIDTH), (int)Math.round(CELL_WIDTH));
 			}
 			g.setColor(Color.BLACK);
 			g.drawLine((int)Math.round(x * CELL_WIDTH), 0, (int)Math.round(x * CELL_WIDTH),
@@ -93,27 +63,43 @@ public class BoardComponentClient extends JComponent implements KeyListener {
 		for (int y = 1; y < LocalBoard.NUM_ROWS; y++) {
 			g.drawLine(0, (int)Math.round(y * CELL_WIDTH), (int)Math.round(LocalBoard.NUM_COLUMNS*CELL_WIDTH), 
 					(int)Math.round(y* CELL_WIDTH));
-		} */
-	
+		}
 
-        for(ClientSnake s : load.getSnakes()) {
-               	g.setColor(new Color(s.getId() * 1000));
+        if(load != null) {
+            for(ClientSnake s : load.getSnakes()) {
+                g.setColor(new Color(s.getId() * 1000));
 
-				((Graphics2D) g).setStroke(new BasicStroke(5));
-				BoardPosition prevPos=s.getListPos().getFirst();
-				for (BoardPosition coordinate : s.getListPos()) {
-					if(prevPos!=null) {
-						g.drawLine((int) Math.round((prevPos.x + .5) * CELL_WIDTH),
-								(int) Math.round((prevPos.y + .5) * CELL_WIDTH),
-								(int) Math.round((coordinate.x+ .5) * CELL_WIDTH),
-								(int) Math.round((coordinate.y+ .5) * CELL_WIDTH));
-					}
-					prevPos = coordinate;
-				}
-				((Graphics2D) g).setStroke(new BasicStroke(1)); 
+                ((Graphics2D) g).setStroke(new BasicStroke(5));
+                for (BoardPosition coordinate : s.getListPos()) {
+                        g.drawLine((int) Math.round((coordinate.x) * CELL_WIDTH),
+                                (int) Math.round((coordinate.y) * CELL_WIDTH),
+                                (int) Math.round((coordinate.x) * CELL_WIDTH),
+                                (int) Math.round((coordinate.y) * CELL_WIDTH));
+                }
+                ((Graphics2D) g).setStroke(new BasicStroke(1)); 
+            }
+
+            for (ClientObstacle co : load.getObs()) {
+                g.setColor(Color.BLACK);
+                g.drawImage(obstacleImage, (int)Math.round(co.getPos().x* CELL_WIDTH),
+                        (int)Math.round(co.getPos().y* CELL_WIDTH),
+                        (int)Math.round(CELL_WIDTH),(int)Math.round(CELL_WIDTH), null);
+
+                // write number of remaining moves
+                g.setColor(Color.WHITE);
+                g.setFont(new Font(Font.MONOSPACED,Font.PLAIN,(int)CELL_WIDTH));
+                g.drawString(co.getRemaining()+"", (int)Math.round((co.getPos().x+0.15)* CELL_WIDTH), 
+                        (int)Math.round((co.getPos().y+0.9) * CELL_WIDTH));
+            }
+
+            ClientGoal goal = load.getGoal();
+
+            g.setColor(Color.RED);
+            g.setFont(new Font(Font.MONOSPACED,Font.PLAIN,(int)CELL_WIDTH));
+            g.drawString(goal.getValue()+"", (int)Math.round((goal.getPos().x+0.15)* CELL_WIDTH), 
+                    (int)Math.round((goal.getPos().y+0.9) * CELL_WIDTH));
         }
-
-	}
+    }
 
 	// Only for remote clients: 2. part of the project
 	// Methods keyPressed and keyReleased will react to user pressing and 

@@ -107,15 +107,16 @@ public class Server {
 
 		private void sendMessages() throws IOException {
 			String message = "Olá Cliente!";
-			LoadGameServer load = new LoadGameServer(board.getSnakes());
+			
 			try {
 				while (!socket.isClosed()) {
+					LoadGameServer load = board.creatGameServer();
 					System.out.println("Aqui estou eu");
 					out.writeObject(load);
 					out.flush();
 					out.reset();
 					Thread.sleep(Board.REMOTE_REFRESH_INTERVAL);
-					//Thread.sleep(1000);
+					
 				}
 
 			} catch (InterruptedException e) {

@@ -87,21 +87,16 @@ public class Client {
                 }
             }
         }).start();
-
     }
 
     private void receiveMessages() throws IOException {
         while (!socket.isClosed()) {
             try {
                 System.out.println(in.readObject());
-                // String load = (String)in.readObject();
                 LoadGameServer loadMessage = (LoadGameServer) in.readObject();
                 System.out.println("Mensagem recebida do servidor: " + loadMessage);
                 remoteBoard.setLoad(loadMessage);
-                System.out.println(remoteBoard);
                 remoteBoard.setChanged();
-                System.out.println(remoteBoard.hasChanged());
-                System.out.println(remoteBoard);
             } catch (IOException | ClassNotFoundException e) {
                 try {
                     socket.close();
@@ -121,7 +116,7 @@ public class Client {
 
         try {
             while (!socket.isClosed()) {
-                System.out.println("sending");
+                // System.out.println("sending");
                 if (remoteBoard.getnewDirectionPressed()) {
                     out.println(remoteBoard.getKeyPressed());
                     out.flush();

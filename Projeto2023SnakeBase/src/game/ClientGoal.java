@@ -1,9 +1,12 @@
 package game;
 
+import java.io.Serializable;
+
 import environment.BoardPosition;
 
-public class ClientGoal {
+public class ClientGoal implements Serializable {
     
+    private static final long serialVersionUID = 1L;
     private BoardPosition pos;
     private int value;
     

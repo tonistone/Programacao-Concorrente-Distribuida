@@ -1,27 +1,10 @@
 package remote;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.PrintWriter;
-import java.io.Serializable;
-import java.util.LinkedList;
-import java.util.Observable;
-
-import environment.LocalBoard;
 import environment.Board;
-import environment.BoardPosition;
-import environment.Cell;
-import game.Goal;
 import game.LoadGameServer;
-import game.Obstacle;
-import game.ObstacleMover;
-import game.Snake;
-import gui.BoardComponent;
-import gui.SnakeGui;
+import gui.SnakeGuiClient;
 
-import java.awt.Component;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 
 
 /** Remote representation of the game, no local threads involved.
@@ -32,7 +15,7 @@ import java.awt.event.KeyListener;
  */
 public class RemoteBoard extends Board {
 
-	private SnakeGui game;
+	private SnakeGuiClient game;
     private String keyPressed;
     private boolean newDirectionPressed = false;
     private LoadGameServer load;
@@ -80,7 +63,7 @@ public class RemoteBoard extends Board {
     @Override
     public void init() {
         if (game == null) {
-            game = new SnakeGui(this, 600, 0);
+            game = new SnakeGuiClient(this, 600, 0);
             game.init();
         }
         

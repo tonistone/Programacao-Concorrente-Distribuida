@@ -124,14 +124,14 @@ public abstract class Board extends Observable implements Serializable {
 	public LoadGameServer creatGameServer() {
 		LinkedList<ClientSnake> snakes = new LinkedList<>();
 		List<ClientObstacle> obs = new ArrayList<>();
-		ClientGoal goal = new ClientGoal(goalPosition, 1);
+		ClientGoal goal = new ClientGoal(goalPosition, 5);
 
 		for(Snake s : getSnakes()) {
-			ClientSnake clientSnake = new ClientSnake();
+			ClientSnake clientSnake = new ClientSnake(s.getPath(), s.getIdentification());
 			snakes.add(clientSnake);
 		}
 		for(Obstacle o : getObstacles()) {
-			ClientObstacle clientObstacle = new ClientObstacle();
+			ClientObstacle clientObstacle = new ClientObstacle(o.getMyCell().getPosition(), o.getRemainingMoves());
 			obs.add(clientObstacle);
 		}
 
