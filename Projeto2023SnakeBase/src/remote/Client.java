@@ -81,7 +81,7 @@ public class Client {
             @Override
             public void run() {
                 try {
-                    //sendMessages();
+                    sendMessages();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -97,7 +97,7 @@ public class Client {
                 // String load = (String)in.readObject();
                 LoadGameServer loadMessage = (LoadGameServer) in.readObject();
                 System.out.println("Mensagem recebida do servidor: " + loadMessage);
-                remoteBoard.updateFromLoadGameServer(loadMessage);
+                remoteBoard.setLoad(loadMessage);
                 System.out.println(remoteBoard);
                 remoteBoard.setChanged();
                 System.out.println(remoteBoard.hasChanged());
@@ -105,6 +105,8 @@ public class Client {
             } catch (IOException | ClassNotFoundException e) {
                 try {
                     socket.close();
+                    System.out.println("Aconteceu");
+                    e.printStackTrace();
                 } catch (IOException e1) {
                     // TODO Auto-generated catch block
                     e1.printStackTrace();
@@ -115,7 +117,7 @@ public class Client {
 
     // remoteBoard.updateFromLoadGameServer(loadMessage);
 
-    /* private void sendMessages() throws IOException {
+    private void sendMessages() throws IOException {
 
         try {
             while (!socket.isClosed()) {
@@ -130,7 +132,7 @@ public class Client {
             e.printStackTrace();
         }
 
-    } */
+    }
 
     public static void main(String[] args) {
         new Client().runClient();

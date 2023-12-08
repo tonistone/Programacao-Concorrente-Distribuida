@@ -7,9 +7,13 @@ import java.util.List;
 import java.util.Observable;
 import java.util.Random;
 
+import game.ClientGoal;
+import game.ClientSnake;
 import game.GameElement;
 import game.Goal;
+import game.LoadGameServer;
 import game.Obstacle;
+import game.ClientObstacle;
 import game.Snake;
 
 public abstract class Board extends Observable implements Serializable {
@@ -115,6 +119,23 @@ public abstract class Board extends Observable implements Serializable {
 	
 	public LinkedList<Snake> getSnakes() {
 		return snakes;
+	}
+
+	public LoadGameServer creatGameServer() {
+		LinkedList<ClientSnake> snakes = new LinkedList<>();
+		List<ClientObstacle> obs = new ArrayList<>();
+		ClientGoal goal = new ClientGoal(goalPosition, 1);
+
+		for(Snake s : getSnakes()) {
+			ClientSnake clientSnake = new ClientSnake();
+			snakes.add(clientSnake);
+		}
+		for(Obstacle o : getObstacles()) {
+			ClientObstacle clientObstacle = new ClientObstacle();
+			obs.add(clientObstacle);
+		}
+
+		return new LoadGameServer(snakes, obs, goal);
 	}
 
 	@Override

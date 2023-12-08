@@ -107,11 +107,7 @@ public class Server {
 
 		private void sendMessages() throws IOException {
 			String message = "Olá Cliente!";
-			LoadGameServer load = new LoadGameServer();
-			load.setSnakes(board.getSnakes());
-			load.setObstacles(board.getObstacles());
-			load.setCells(board.getCells());
-			load.setGoalPosition(board.getGoalPosition());
+			LoadGameServer load = new LoadGameServer(board.getSnakes());
 			try {
 				while (!socket.isClosed()) {
 					System.out.println("Aqui estou eu");

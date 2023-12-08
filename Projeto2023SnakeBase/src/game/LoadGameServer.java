@@ -2,6 +2,7 @@ package game;
 
 import java.io.Serializable;
 import java.util.LinkedList;
+import java.util.List;
 
 import environment.BoardPosition;
 import environment.Cell;
@@ -9,41 +10,27 @@ import environment.Cell;
 public class LoadGameServer implements Serializable {
     
     private static final long serialVersionUID = 1L;
-    private BoardPosition goalPosition;
-    private LinkedList<Snake> snakes;
-    private LinkedList<Obstacle> obstacles;
-    private Cell[][] cells;
-    
-    
-    public void setSnakes(LinkedList<Snake> snakes) {
+    private LinkedList<ClientSnake> snakes;
+    private List<ObstacleClient> obs;
+    private ClientGoal goal;
+  
+    public LoadGameServer(LinkedList<ClientSnake> snakes, List<ObstacleClient> obs, ClientGoal goal) {
         this.snakes = snakes;
+        this.obs = obs;
+        this.goal = goal;
     }
 
-    public LinkedList<Snake> getSnakes() {
+    public LinkedList<ClientSnake> getSnakes() {
         return snakes;
     }
 
-    public void setObstacles(LinkedList<Obstacle> obstacles) {
-        this.obstacles = obstacles;
+
+    public List<ObstacleClient> getObs() {
+        return obs;
     }
 
-    public LinkedList<Obstacle> getObstacles() {
-        return obstacles;
-    }
 
-    public void setCells(Cell[][] cells) {
-        this.cells = cells;
-    }
-
-    public Cell[][] getCells() {
-        return cells;
-    }
-
-    public void setGoalPosition(BoardPosition goalPosition) {
-		this.goalPosition = goalPosition;
-	}
-    
-    public BoardPosition getGoalPosition() {
-        return goalPosition;
+    public ClientGoal getGoal() {
+        return goal;
     }
 }

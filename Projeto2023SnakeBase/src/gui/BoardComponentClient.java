@@ -4,16 +4,23 @@ import environment.LocalBoard;
 import environment.Board;
 import environment.BoardPosition;
 import environment.Cell;
+import game.ClientSnake;
 import game.Goal;
 import game.HumanSnake;
+import game.LoadGameServer;
 import game.Obstacle;
 import game.Snake;
+import remote.RemoteBoard;
+
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
  /** Graphical representarion of the game. This class should not be edited.
@@ -21,26 +28,28 @@ import javax.swing.JComponent;
   * @author luismota
   *
   */
-public class BoardComponent extends JComponent {
+public class BoardComponentClient extends JComponent implements KeyListener {
 
-	private Board board;
+	private RemoteBoard board;
 	private Image obstacleImage;
 
-	public BoardComponent(Board board) {
+	public BoardComponentClient(RemoteBoard board) {
 		this.board = board;
 		obstacleImage=new ImageIcon(getClass().getResource("/obstacle.png")).getImage();
 		// Necessary for key listener
 		setFocusable(true);
+		addKeyListener(this);
 	}
 
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		final double CELL_WIDTH=getHeight()/(double)SnakeGui.NUM_ROWS;
+        LoadGameServer load = board.getLoad();
 		//System.err.println("W:"+getWidth()+" H:"+getHeight());
-		for (int x = 0; x < LocalBoard.NUM_COLUMNS; x++) {
+		/* for (int x = 0; x < LocalBoard.NUM_COLUMNS; x++) {
 			for (int y = 0; y < LocalBoard.NUM_ROWS; y++) {
-				Cell cell = board.getCell(new BoardPosition(x, y));
+				//Cell cell = board.getCell(new BoardPosition(x, y));
 				Image image = null;
 				if(cell.getGameElement()!=null) 
 					if(cell.getGameElement() instanceof Obstacle) {
@@ -84,14 +93,15 @@ public class BoardComponent extends JComponent {
 		for (int y = 1; y < LocalBoard.NUM_ROWS; y++) {
 			g.drawLine(0, (int)Math.round(y * CELL_WIDTH), (int)Math.round(LocalBoard.NUM_COLUMNS*CELL_WIDTH), 
 					(int)Math.round(y* CELL_WIDTH));
-		}
-		for (Snake s : board.getSnakes()) {
-			if (s.getLength() > 0) {
-				g.setColor(new Color(s.getIdentification() * 1000));
+		} */
+	
+
+        for(ClientSnake s : load.getSnakes()) {
+               	g.setColor(new Color(s.getId() * 1000));
 
 				((Graphics2D) g).setStroke(new BasicStroke(5));
-				BoardPosition prevPos=s.getPath().getFirst();
-				for (BoardPosition coordinate : s.getPath()) {
+				BoardPosition prevPos=s.getListPos().getFirst();
+				for (BoardPosition coordinate : s.getListPos()) {
 					if(prevPos!=null) {
 						g.drawLine((int) Math.round((prevPos.x + .5) * CELL_WIDTH),
 								(int) Math.round((prevPos.y + .5) * CELL_WIDTH),
@@ -100,8 +110,38 @@ public class BoardComponent extends JComponent {
 					}
 					prevPos = coordinate;
 				}
-				((Graphics2D) g).setStroke(new BasicStroke(1));
-			}
-		}
+				((Graphics2D) g).setStroke(new BasicStroke(1)); 
+        }
+
 	}
+
+	// Only for remote clients: 2. part of the project
+	// Methods keyPressed and keyReleased will react to user pressing and 
+	// releasing keys on the keyboard.
+	@Override
+	public void keyPressed(KeyEvent e) {
+		System.out.println("Got key pressed.");
+		if(e.getKeyCode()!=KeyEvent.VK_LEFT && e.getKeyCode()!=KeyEvent.VK_RIGHT && 
+				e.getKeyCode()!=KeyEvent.VK_UP && e.getKeyCode()!=KeyEvent.VK_DOWN ) 
+			return; // ignore
+		board.handleKeyPress(e.getKeyCode());
+		
+		
+	}
+
+	@Override
+	public void keyReleased(KeyEvent e) {
+		if(e.getKeyCode()!=KeyEvent.VK_LEFT && e.getKeyCode()!=KeyEvent.VK_RIGHT && 
+				e.getKeyCode()!=KeyEvent.VK_UP && e.getKeyCode()!=KeyEvent.VK_DOWN ) 
+			return; // ignore
+
+		System.out.println("Got key released.");
+		board.handleKeyRelease();
+	}
+
+	@Override
+	public void keyTyped(KeyEvent arg0) {
+		// ignore
+	}
+	
 }

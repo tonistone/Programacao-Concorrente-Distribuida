@@ -35,8 +35,9 @@ public class RemoteBoard extends Board {
 	private SnakeGui game;
     private String keyPressed;
     private boolean newDirectionPressed = false;
+    private LoadGameServer load;
     
-	@Override
+    @Override
 	public void handleKeyPress(int keyCode) {
 		switch (keyCode) {
 			case KeyEvent.VK_UP:
@@ -85,14 +86,12 @@ public class RemoteBoard extends Board {
         
     }
 
-    //TODO: Rever lógica toda, o objetivo é ele ler do ficheiro, não é adicionar.
-    public void updateFromLoadGameServer(LoadGameServer load) {
-        System.out.println("Vou dar update");
-        this.addCellsToClient(load.getCells());
-        this.addSnakesToClient(load.getSnakes());
-        this.addObstaclesToClient(load.getObstacles());
-        this.setGoalPosition(load.getGoalPosition());
-        
+    public LoadGameServer getLoad() {
+        return load;
+    }
+
+    public void setLoad(LoadGameServer load) {
+        this.load = load;
     }
 }
   
