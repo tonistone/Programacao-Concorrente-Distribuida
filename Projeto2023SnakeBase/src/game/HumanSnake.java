@@ -6,11 +6,10 @@ import environment.Board;
   * @author luismota
   *
   */
-public abstract class HumanSnake extends Snake {
+  //não faz sentido
+public class HumanSnake extends Snake {
 	
 	public HumanSnake(int id,Board board) {
 		super(id,board);
 	}
-
-  
 }

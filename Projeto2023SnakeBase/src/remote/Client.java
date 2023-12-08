@@ -1,20 +1,17 @@
 package remote;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.ObjectInput;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 
 import environment.Board;
-import environment.LocalBoard;
-import gui.SnakeGui;
+import environment.BoardPosition;
+import game.LoadGameServer;
+import game.Server;
 
 /**
  * Remore client, only for part II
@@ -36,47 +33,35 @@ public class Client {
             connectToServer();
             // enviar e receber
             handleConnection();
+
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            /* try {
-                socket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } */
         }
     }
 
     private void connectToServer() throws IOException {
         InetAddress endereco = InetAddress.getByName(null);
         System.out.println("Endereco no client:" + endereco);
-        socket = new Socket(endereco, game.Server.PORTO);
+        socket = new Socket(endereco, Server.PORTO);
         System.out.println("Socket:" + socket);
-        // Recebe objetos vindos do servidor
+
         in = new ObjectInputStream(socket.getInputStream());
-        // Envia texto para o servidor
         out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true);
-        //Cria uma instância de RemoteBoard
+
         remoteBoard = new RemoteBoard();
-        //inicializa
+        // inicializa
         remoteBoard.init();
+
+        int numberOfObservers = remoteBoard.countObservers();
+
+        if (numberOfObservers > 0) {
+            System.out.println("Existem observadores registrados.");
+        } else {
+            System.out.println("Não existem observadores registrados.");
+        }
     }
 
     private void handleConnection() throws IOException {
-        // Iniciar thread para enviar dados
-        System.out.println("HERE");
-        new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-                try {
-                    sendMessages();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
-
         // Iniciar thread para receber dados
         new Thread(new Runnable() {
 
@@ -90,44 +75,62 @@ public class Client {
             }
         }).start();
 
+        // Iniciar thread para enviar dados
+        new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                try {
+                    //sendMessages();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+
     }
 
     private void receiveMessages() throws IOException {
-        try {
-            while (true) {
-                //se existir alguma coisa para ler
-                if (in.available() > 0) {
-                // Recebe o estado do jogo do servidor
-                Object receivedObject = in.readObject();
-
-                // Se o objeto recebido for do tipo RemoteBoard
-                if (receivedObject instanceof RemoteBoard) {
-                    RemoteBoard receivedRemoteBoard = (RemoteBoard) receivedObject;
-
-                    // Atualiza a instância existente da RemoteBoard
-                    remoteBoard.updateBoardState(receivedRemoteBoard);
+        while (!socket.isClosed()) {
+            try {
+                System.out.println(in.readObject());
+                // String load = (String)in.readObject();
+                LoadGameServer loadMessage = (LoadGameServer) in.readObject();
+                System.out.println("Mensagem recebida do servidor: " + loadMessage);
+                remoteBoard.updateFromLoadGameServer(loadMessage);
+                System.out.println(remoteBoard);
+                remoteBoard.setChanged();
+                System.out.println(remoteBoard.hasChanged());
+                System.out.println(remoteBoard);
+            } catch (IOException | ClassNotFoundException e) {
+                try {
+                    socket.close();
+                } catch (IOException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
                 }
-                Thread.sleep(100);
             }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
-
     }
 
-    private void sendMessages() throws IOException {
+    // remoteBoard.updateFromLoadGameServer(loadMessage);
+
+    /* private void sendMessages() throws IOException {
+
         try {
-            while (true) {
+            while (!socket.isClosed()) {
                 System.out.println("sending");
-                if(remoteBoard.getnewDirectionPressed()){
+                if (remoteBoard.getnewDirectionPressed()) {
                     out.println(remoteBoard.getKeyPressed());
+                    out.flush();
+                    System.out.println(remoteBoard.getKeyPressed());
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
+
+    } */
 
     public static void main(String[] args) {
         new Client().runClient();

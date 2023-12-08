@@ -5,17 +5,21 @@ import java.io.ObjectInputStream;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.util.LinkedList;
+import java.util.Observable;
 
 import environment.LocalBoard;
 import environment.Board;
 import environment.BoardPosition;
 import environment.Cell;
 import game.Goal;
+import game.LoadGameServer;
 import game.Obstacle;
+import game.ObstacleMover;
 import game.Snake;
 import gui.BoardComponent;
 import gui.SnakeGui;
 
+import java.awt.Component;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
@@ -26,10 +30,12 @@ import java.awt.event.KeyListener;
  * @author luismota
  *
  */
-public class RemoteBoard extends Board implements Serializable {
-	
+public class RemoteBoard extends Board {
+
+	private SnakeGui game;
     private String keyPressed;
-    private boolean newDirectionPressed = false;	
+    private boolean newDirectionPressed = false;
+    
 	@Override
 	public void handleKeyPress(int keyCode) {
 		switch (keyCode) {
@@ -53,29 +59,7 @@ public class RemoteBoard extends Board implements Serializable {
                 break;
 		}	
 	}
-
-	public void updateBoardState(RemoteBoard receiveRemoteBoard) {
-		//limpar cobras existentes do remoteBoard
-		getSnakes().clear();
-
-		//limpar obstáculos
-		//getObstacles().clear();
-		
-		//adicionar cobras vindas do servidor
-		for(Snake receivedSnake : receiveRemoteBoard.getSnakes()) {
-			addSnake(receivedSnake);
-		}
-
-		// Notifica a mudança para atualizar a interface gráfica
-		setChanged();
-		notifyObservers();
-	}
-
-    @Override
-    public void init() {
-        // TODO Auto-generated method stub
-    }
-
+ 
     @Override
     public void handleKeyRelease() {
     }
@@ -91,4 +75,24 @@ public class RemoteBoard extends Board implements Serializable {
     public void clearKeyPressed(){
         keyPressed = null;
     }
+
+    @Override
+    public void init() {
+        if (game == null) {
+            game = new SnakeGui(this, 600, 0);
+            game.init();
+        }
+        
+    }
+
+    //TODO: Rever lógica toda, o objetivo é ele ler do ficheiro, não é adicionar.
+    public void updateFromLoadGameServer(LoadGameServer load) {
+        System.out.println("Vou dar update");
+        this.addCellsToClient(load.getCells());
+        this.addSnakesToClient(load.getSnakes());
+        this.addObstaclesToClient(load.getObstacles());
+        this.setGoalPosition(load.getGoalPosition());
+        
+    }
 }
+  

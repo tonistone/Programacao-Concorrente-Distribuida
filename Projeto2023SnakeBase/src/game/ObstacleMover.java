@@ -1,12 +1,13 @@
 package game;
 
+import java.io.Serializable;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import environment.Cell;
 import environment.LocalBoard;
 
-public class ObstacleMover extends Thread {
+public class ObstacleMover extends Thread implements Serializable {
 	private Obstacle obstacle;
 	private LocalBoard board;
 	private Lock cellLock = new ReentrantLock();

@@ -24,10 +24,10 @@ import game.AutomaticSnake;
  */
 public class LocalBoard extends Board {
 
-	private static final int NUM_SNAKES = 2;
+	private static final int NUM_SNAKES = 3;
 	private static final int NUM_OBSTACLES = 25;
 	private static final int NUM_SIMULTANEOUS_MOVING_OBSTACLES = 3;
-	ExecutorService pool = Executors.newFixedThreadPool(NUM_SIMULTANEOUS_MOVING_OBSTACLES);
+	private transient ExecutorService pool = Executors.newFixedThreadPool(NUM_SIMULTANEOUS_MOVING_OBSTACLES);
 
 	public LocalBoard() {
 

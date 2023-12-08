@@ -16,7 +16,7 @@ public abstract class Board extends Observable implements Serializable {
 	protected Cell[][] cells;
 	private BoardPosition goalPosition;
 	public static final long PLAYER_PLAY_INTERVAL = 100;
-	public static final long REMOTE_REFRESH_INTERVAL = 200;
+	public static final long REMOTE_REFRESH_INTERVAL = 20;
 	public static final int NUM_COLUMNS = 30;
 	public static final int NUM_ROWS = 30;
 	protected LinkedList<Snake> snakes = new LinkedList<Snake>();
@@ -34,6 +34,10 @@ public abstract class Board extends Observable implements Serializable {
 
 	public Cell getCell(BoardPosition cellCoord) {
 		return cells[cellCoord.x][cellCoord.y];
+	}
+
+	public Cell[][] getCells() {
+		return cells;
 	}
 
 	protected BoardPosition getRandomPosition() {
@@ -62,6 +66,19 @@ public abstract class Board extends Observable implements Serializable {
 				placed=true;
 			}
 		}
+	}
+
+	public void addSnakesToClient(LinkedList<Snake> elements) {
+		this.snakes = elements;
+	}
+	public void addCellsToClient(Cell[][] elements) {
+		this.cells = elements;
+	}
+	public void addGoalToClient(BoardPosition elements) {
+		this.goalPosition = elements;
+	}
+	public void addObstaclesToClient(LinkedList<Obstacle> elements) {
+		this.obstacles = elements;
 	}
 
 	public List<BoardPosition> getNeighboringPositions(Cell cell) {
