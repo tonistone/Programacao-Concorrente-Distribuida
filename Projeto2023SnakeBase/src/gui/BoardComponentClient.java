@@ -2,12 +2,11 @@ package gui;
 
 import environment.LocalBoard;
 import environment.BoardPosition;
-import environment.Cell;
 import game.ClientGoal;
 import game.ClientObstacle;
 import game.ClientSnake;
-import game.HumanSnake;
 import game.LoadGameServer;
+import game.Snake;
 import remote.RemoteBoard;
 
 import java.awt.BasicStroke;
@@ -47,39 +46,20 @@ public class BoardComponentClient extends JComponent implements KeyListener {
 		super.paintComponent(g);
 		final double CELL_WIDTH = getHeight() / (double) SnakeGui.NUM_ROWS;
 		LoadGameServer load = board.getLoad();
-
-		for (int x = 0; x < LocalBoard.NUM_COLUMNS; x++) {
-			for (int y = 0; y < LocalBoard.NUM_ROWS; y++) {
-				Cell cell = board.getCell(new BoardPosition(x, y));
-				Image image = null;
-				if (cell.isOcupiedBySnake()) {
-					// different color for human player...
-					if (cell.getOcuppyingSnake() instanceof HumanSnake)
-						g.setColor(Color.ORANGE);
-					else
-						g.setColor(Color.LIGHT_GRAY);
-					g.fillRect((int) Math.round(cell.getPosition().x * CELL_WIDTH),
-							(int) Math.round(cell.getPosition().y * CELL_WIDTH),
-							(int) Math.round(CELL_WIDTH), (int) Math.round(CELL_WIDTH));
-				}
-			}
-			g.setColor(Color.BLACK);
-			g.drawLine((int) Math.round(x * CELL_WIDTH), 0, (int) Math.round(x * CELL_WIDTH),
-					(int) Math.round(LocalBoard.NUM_ROWS * CELL_WIDTH));
-		}
-		for (int y = 1; y < LocalBoard.NUM_ROWS; y++) {
-			g.drawLine(0, (int) Math.round(y * CELL_WIDTH), (int) Math.round(LocalBoard.NUM_COLUMNS * CELL_WIDTH),
-					(int) Math.round(y * CELL_WIDTH));
-		}
-
+		
 		if (load != null) {
 			for (ClientSnake s : load.getSnakes()) {
+				for(BoardPosition b : s.getListPos()) {
+						g.setColor(Color.LIGHT_GRAY);
+						g.fillRect((int) Math.round(b.x * CELL_WIDTH),
+						(int) Math.round(b.y * CELL_WIDTH),
+						(int) Math.round(CELL_WIDTH), (int) Math.round(CELL_WIDTH));
+						}
 				if (s.getLength() > 0) {
 					g.setColor(new Color(s.getId() * 1000));
 
 					((Graphics2D) g).setStroke(new BasicStroke(5));
 					LinkedList<BoardPosition> listPos = s.getListPos();
-
 					BoardPosition prevPos = null;
 					for (BoardPosition coordinate : listPos) {
 						if (prevPos != null) {
@@ -91,11 +71,10 @@ public class BoardComponentClient extends JComponent implements KeyListener {
 						}
 						prevPos = coordinate;
 					}
-
+				}
 					((Graphics2D) g).setStroke(new BasicStroke(1));
 				}
-			}
-
+		
 			for (ClientObstacle co : load.getObs()) {
 				g.setColor(Color.BLACK);
 				g.drawImage(obstacleImage, (int) Math.round(co.getPos().x * CELL_WIDTH),
@@ -115,6 +94,21 @@ public class BoardComponentClient extends JComponent implements KeyListener {
 			g.setFont(new Font(Font.MONOSPACED, Font.PLAIN, (int) CELL_WIDTH));
 			g.drawString(goal.getValue() + "", (int) Math.round((goal.getPos().x + 0.15) * CELL_WIDTH),
 					(int) Math.round((goal.getPos().y + 0.9) * CELL_WIDTH));
+		}
+
+		
+		for (int y = 1; y < LocalBoard.NUM_ROWS; y++) {
+			g.setColor(Color.BLACK);
+			g.drawLine(0, (int) Math.round(y * CELL_WIDTH), (int) Math.round(LocalBoard.NUM_COLUMNS * CELL_WIDTH),
+					(int) Math.round(y * CELL_WIDTH));
+		}
+
+		for (int x = 0; x < LocalBoard.NUM_COLUMNS; x++) {
+			for (int y = 0; y < LocalBoard.NUM_ROWS; y++) {
+			}
+			g.setColor(Color.BLACK);
+			g.drawLine((int) Math.round(x * CELL_WIDTH), 0, (int) Math.round(x * CELL_WIDTH),
+					(int) Math.round(LocalBoard.NUM_ROWS * CELL_WIDTH)); 
 		}
 	}
 

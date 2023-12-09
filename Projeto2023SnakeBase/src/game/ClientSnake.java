@@ -10,6 +10,7 @@ public class ClientSnake implements Serializable {
     private static final long serialVersionUID = 1L;
     private LinkedList<BoardPosition> listPos = new LinkedList<>();
     private int id;
+    private boolean isHuman = true;
     
     public ClientSnake(LinkedList<BoardPosition> listPos, int id) {
         this.listPos = listPos;
@@ -26,4 +27,18 @@ public class ClientSnake implements Serializable {
     public int getLength() {
         return listPos.size();
     }
+
+    public boolean isHumanSnake(Snake snake) {
+        if (snake instanceof HumanSnake) {
+            isHuman = true;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean getIsHuman() {
+        return isHuman;
+    }
+
 }
