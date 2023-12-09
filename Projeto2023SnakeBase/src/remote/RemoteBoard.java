@@ -34,7 +34,7 @@ public class RemoteBoard extends Board {
                 break;
             case KeyEvent.VK_LEFT:
                 keyPressed="LEFT"; 
-                newDirectionPressed = true;        
+                newDirectionPressed = true;      
                 break;
 
             case KeyEvent.VK_RIGHT:   
@@ -46,6 +46,7 @@ public class RemoteBoard extends Board {
  
     @Override
     public void handleKeyRelease() {
+        newDirectionPressed = false;
     }
 
     public boolean getnewDirectionPressed() {

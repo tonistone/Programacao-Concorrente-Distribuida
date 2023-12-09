@@ -22,4 +22,8 @@ public class ClientSnake implements Serializable {
     public int getId() {
         return id;
     }
+
+    public int getLength() {
+        return listPos.size();
+    }
 }

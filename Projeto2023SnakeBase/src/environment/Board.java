@@ -26,6 +26,7 @@ public abstract class Board extends Observable implements Serializable {
 	protected LinkedList<Snake> snakes = new LinkedList<Snake>();
 	private LinkedList<Obstacle> obstacles= new LinkedList<Obstacle>();
 	protected boolean isFinished = false;
+	private Goal goal; 
 
 	public Board() {
 		cells = new Cell[NUM_COLUMNS][NUM_ROWS];
@@ -101,7 +102,7 @@ public abstract class Board extends Observable implements Serializable {
 	}
 
 	protected Goal addGoal() {
-		Goal goal=new Goal(this);
+		goal=new Goal(this);
 		addGameElement(goal);
 		return goal;
 	}
@@ -124,7 +125,7 @@ public abstract class Board extends Observable implements Serializable {
 	public LoadGameServer creatGameServer() {
 		LinkedList<ClientSnake> snakes = new LinkedList<>();
 		List<ClientObstacle> obs = new ArrayList<>();
-		ClientGoal goal = new ClientGoal(goalPosition, 5);
+		ClientGoal clientGoal = new ClientGoal(goalPosition, goal.getValue());
 
 		for(Snake s : getSnakes()) {
 			ClientSnake clientSnake = new ClientSnake(s.getPath(), s.getIdentification());
@@ -135,7 +136,7 @@ public abstract class Board extends Observable implements Serializable {
 			obs.add(clientObstacle);
 		}
 
-		return new LoadGameServer(snakes, obs, goal);
+		return new LoadGameServer(snakes, obs, clientGoal);
 	}
 
 	@Override

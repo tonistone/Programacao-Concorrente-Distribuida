@@ -1,6 +1,7 @@
 package game;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -10,6 +11,10 @@ import java.util.concurrent.locks.ReentrantLock;
 import environment.Board;
 import environment.BoardPosition;
 import environment.Cell;
+
+import java.awt.Event;
+import java.awt.event.KeyEvent;
+
 
 /**
  * Base class for representing Snakes.
@@ -24,6 +29,7 @@ public abstract class Snake extends Thread implements Serializable {
 	protected int size = 5;
 	private int id;
 	private Board board;
+	private int keyCode;
 	private Lock sharedLock = new ReentrantLock();
 	private Condition snakeMoved = sharedLock.newCondition();
 
@@ -52,8 +58,16 @@ public abstract class Snake extends Thread implements Serializable {
 		sharedLock.lock();
 		try {
 			Cell head = cells.getFirst();
+			if(this instanceof AutomaticSnake) {
 			BoardPosition roadToGoal = getDistanceToGoal(cell);
 			head = board.getCell(roadToGoal);
+			}
+
+			if (this instanceof HumanSnake) {
+				BoardPosition road = this.getCells().getFirst().getPosition().getCellRight();
+				head = board.getCell(road);				
+			}
+			
 			head.request(this);
 
 			cells.addFirst(head);
@@ -109,7 +123,7 @@ public abstract class Snake extends Thread implements Serializable {
 		}
 		return nextPosition;
 	}
-
+	
 	private BoardPosition getDistanceToUnoccupiedGoal(Cell cell) {
 		List<BoardPosition> neighboringPositions = board.getNeighboringPositions(cell);
 		BoardPosition nextPosition = null;
@@ -144,7 +158,7 @@ public abstract class Snake extends Thread implements Serializable {
 
 	public synchronized LinkedList<BoardPosition> getPath() {
 		LinkedList<BoardPosition> coordinates = new LinkedList<BoardPosition>();
-		for (Cell cell : cells) {
+		for (Cell cell : new LinkedList<>(cells)) {
 			coordinates.add(cell.getPosition());
 		}
 

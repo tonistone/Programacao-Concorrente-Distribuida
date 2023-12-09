@@ -22,6 +22,7 @@ import game.HumanSnake;
 public class Server {
 	private final Board board;
 	public static final int PORTO = 8080;
+	private Cell cell;
 
 	public Server(Board board) {
 		this.board = board;
@@ -46,11 +47,13 @@ public class Server {
 		public void run() {
 			try {
 				synchronized (this) {
-                humanSnake = new HumanSnake(1, board);
-				humanSnake.start();
-				board.addSnake(humanSnake);
-				board.setChanged();
-				}  
+					humanSnake = new HumanSnake(1, board);
+					humanSnake.doInitialPositioning();
+					humanSnake.start();
+					board.addSnake(humanSnake);
+					board.setChanged();
+
+				}
 				serve();
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -82,6 +85,7 @@ public class Server {
 				public void run() {
 					try {
 						receiveMessages();
+
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
@@ -95,8 +99,34 @@ public class Server {
 					if (in.ready()) {
 						String receivedMessage = in.readLine();
 						System.out.println(receivedMessage);
-						if (receivedMessage.equals(null))
-							break;
+						try {
+							if (receivedMessage.equals(null)) {
+								break;
+							} else if (receivedMessage.equals("UP")) {
+
+								Cell nextPos = board.getCell(humanSnake.getCells().getFirst().getPosition().getCellAbove());
+								humanSnake.move(nextPos);
+
+							} else if (receivedMessage.equals("DOWN")) {
+
+								Cell nextPos = board.getCell(humanSnake.getCells().getFirst().getPosition().getCellBelow());
+								humanSnake.move(nextPos);
+
+							} else if (receivedMessage.equals("LEFT")) {
+
+								Cell nextPos = board.getCell(humanSnake.getCells().getFirst().getPosition().getCellLeft());
+								humanSnake.move(nextPos);
+
+							} else if (receivedMessage.equals("RIGHT")) {
+
+								Cell nextPos = board.getCell(humanSnake.getCells().getFirst().getPosition().getCellRight());
+								humanSnake.move(nextPos);
+
+							}
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+
 						System.out.println("Received: " + receivedMessage);
 					}
 				}
@@ -106,23 +136,25 @@ public class Server {
 		}
 
 		private void sendMessages() throws IOException {
-			String message = "Olá Cliente!";
-			
 			try {
 				while (!socket.isClosed()) {
 					LoadGameServer load = board.creatGameServer();
-					System.out.println("Aqui estou eu");
+					// System.out.println("Aqui estou eu");
 					out.writeObject(load);
 					out.flush();
 					out.reset();
 					Thread.sleep(Board.REMOTE_REFRESH_INTERVAL);
-					
+
 				}
 
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	public void getnewDirectionPressed() {
+
 	}
 
 	public void startServing() throws IOException {

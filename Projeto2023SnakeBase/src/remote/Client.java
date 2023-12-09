@@ -12,7 +12,7 @@ import environment.Board;
 import environment.BoardPosition;
 import game.LoadGameServer;
 import game.Server;
-
+ 
 /**
  * Remore client, only for part II
  * 
@@ -110,19 +110,18 @@ public class Client {
         }
     }
 
-    // remoteBoard.updateFromLoadGameServer(loadMessage);
-
     private void sendMessages() throws IOException {
 
         try {
             while (!socket.isClosed()) {
                 // System.out.println("sending");
-                if (remoteBoard.getnewDirectionPressed()) {
-                    out.println(remoteBoard.getKeyPressed());
-                    out.flush();
-                    System.out.println(remoteBoard.getKeyPressed());
+                    if (remoteBoard.getnewDirectionPressed()) {
+                        out.println(remoteBoard.getKeyPressed());
+                        remoteBoard.handleKeyRelease();
+                        //System.out.println(remoteBoard.getKeyPressed());
+                    }
+                    //remoteBoard.clearKeyPressed();
                 }
-            }
         } catch (Exception e) {
             e.printStackTrace();
         }

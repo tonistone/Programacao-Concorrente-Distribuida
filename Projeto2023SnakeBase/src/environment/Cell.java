@@ -10,6 +10,7 @@ import javax.sound.midi.SysexMessage;
 
 import game.GameElement;
 import game.Goal;
+import game.HumanSnake;
 import game.Obstacle;
 import game.Snake;
 import game.AutomaticSnake;
