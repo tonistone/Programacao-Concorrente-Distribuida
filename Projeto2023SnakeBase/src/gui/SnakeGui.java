@@ -10,6 +10,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import environment.Board;
 import environment.LocalBoard;
+import game.AutomaticSnake;
 import game.Snake;
 /**
  *  Class to create and configure GUI.
@@ -48,8 +49,10 @@ public class SnakeGui implements Observer {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				for (Snake snake : board.getSnakes()) {
-					//System.out.println("Interrompi as snakes");
-					snake.interrupt();
+					if(snake instanceof  AutomaticSnake){
+						System.out.println("Interrompi as snakes");
+						snake.interrupt();
+					}
 				}
 			}
 				

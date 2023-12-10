@@ -80,33 +80,33 @@ public class Server {
 						String receivedMessage = in.readLine();
 						System.out.println(receivedMessage);
 						try {
+							Cell nextPos=null;
 							if (receivedMessage.equals(null)) {
 								break;
 							} else if (receivedMessage.equals("UP")) {
 
-								Cell nextPos = board.getCell(humanSnake.getCells().getFirst().getPosition().getCellAbove());
-								humanSnake.move(nextPos);
+								nextPos = board.getCell(humanSnake.getCells().getFirst().getPosition().getCellAbove());
 
 							} else if (receivedMessage.equals("DOWN")) {
 
-								Cell nextPos = board.getCell(humanSnake.getCells().getFirst().getPosition().getCellBelow());
-								humanSnake.move(nextPos);
+								nextPos = board.getCell(humanSnake.getCells().getFirst().getPosition().getCellBelow());
 
 							} else if (receivedMessage.equals("LEFT")) {
 
-								Cell nextPos = board.getCell(humanSnake.getCells().getFirst().getPosition().getCellLeft());
-								humanSnake.move(nextPos);
+								nextPos = board.getCell(humanSnake.getCells().getFirst().getPosition().getCellLeft());
 
 							} else if (receivedMessage.equals("RIGHT")) {
 
-								Cell nextPos = board.getCell(humanSnake.getCells().getFirst().getPosition().getCellRight());
-								humanSnake.move(nextPos);
-
+								nextPos = board.getCell(humanSnake.getCells().getFirst().getPosition().getCellRight());
 							}
+/* 							if(nextPos == null){
+								System.out.println("its null");
+								return;
+							}*/
+							humanSnake.move(nextPos);
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 						}
-
 						System.out.println("Received: " + receivedMessage);
 					}
 				}

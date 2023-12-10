@@ -37,8 +37,8 @@ public class Cell {
 	public void request(Snake snake) throws InterruptedException {
 		sharedLock.lock();
 		try {
-			while (isOcupied() && (ocuppyingSnake != snake || ocuppyingSnake == null)) {
-				//System.out.println("WAITING");
+			while (isOcupied() && (ocuppyingSnake != snake || ocuppyingSnake != null)) {
+				System.out.println("WAITING");
 				snakeMoved.await();
 			}
 			ocuppyingSnake = snake;
