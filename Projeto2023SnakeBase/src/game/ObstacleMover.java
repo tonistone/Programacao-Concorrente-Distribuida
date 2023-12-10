@@ -25,7 +25,7 @@ public class ObstacleMover extends Thread implements Serializable {
 				Thread.sleep(obstacle.getOBSTACLE_MOVE_INTERVAL());
 				Cell myCell = obstacle.getMyCell();
 				myCell.removeObstacle();
-
+				
 				cellLock.lock();
 				try {
 					if (!myCell.isOcupiedByObstacle() || !myCell.isOcupiedBySnake()) {
@@ -38,7 +38,6 @@ public class ObstacleMover extends Thread implements Serializable {
 				}
 			}
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 

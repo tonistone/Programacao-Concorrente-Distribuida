@@ -1,15 +1,7 @@
 package game;
 
-import java.util.LinkedList;
-import java.util.List;
-
-import javax.swing.text.Position;
-
 import environment.LocalBoard;
-import gui.SnakeGui;
-import environment.Cell;
 import environment.Board;
-import environment.BoardPosition;
 
 public class AutomaticSnake extends Snake {
 
@@ -22,15 +14,13 @@ public class AutomaticSnake extends Snake {
 	public void run() {
 		try {
 			doInitialPositioning();
-			System.err.println("initial size:" + cells.size());
+			//System.err.println("initial size:" + cells.size());
 			while (!isInterrupted()) {
-
 				Thread.sleep(Board.PLAYER_PLAY_INTERVAL);
-				//Thread.sleep(500);
 				move(cells.getFirst());
 			}
 		} catch (InterruptedException e) {
-			System.out.println("Interrompi cobra automatica");
+			//System.out.println("Interrompi cobra automatica");
 		}
 	}
 }

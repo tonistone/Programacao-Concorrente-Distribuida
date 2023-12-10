@@ -1,19 +1,12 @@
 package environment;
 
-import java.io.Serializable;
-import java.util.Random;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-
-import javax.sound.midi.SysexMessage;
-
 import game.GameElement;
 import game.Goal;
-import game.HumanSnake;
 import game.Obstacle;
 import game.Snake;
-import game.AutomaticSnake;
 
 /**
  * Main class for game representation.
@@ -21,7 +14,7 @@ import game.AutomaticSnake;
  * @author luismota
  *
  */
-public class Cell implements Serializable {
+public class Cell {
 	private BoardPosition position;
 	private Snake ocuppyingSnake = null;
 	private GameElement gameElement = null;
@@ -45,7 +38,7 @@ public class Cell implements Serializable {
 		sharedLock.lock();
 		try {
 			while (isOcupied() && (ocuppyingSnake != snake || ocuppyingSnake == null)) {
-				System.out.println("WAITING");
+				//System.out.println("WAITING");
 				snakeMoved.await();
 			}
 			ocuppyingSnake = snake;

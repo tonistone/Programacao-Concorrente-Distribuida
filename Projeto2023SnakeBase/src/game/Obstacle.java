@@ -1,22 +1,14 @@
 package game;
 
-import java.io.Serializable;
-
-import environment.Board;
-import environment.BoardPosition;
-import environment.Cell;
-import environment.LocalBoard;
-
 public class Obstacle extends GameElement {
 	
 	
 	private static final int NUM_MOVES=3;
 	private static final int OBSTACLE_MOVE_INTERVAL = 400;
 	private int remainingMoves= NUM_MOVES;
-	private Board board;
-	public Obstacle(Board board) {
+
+	public Obstacle() {
 		super();
-		this.board = board;
 	}
 	
 	public int getRemainingMoves() {
@@ -36,7 +28,7 @@ public class Obstacle extends GameElement {
 	}
 
 	public boolean isObstacleDead(){
-		if(this.remainingMoves>0){
+		if(this.remainingMoves > 0){
 			return false;
 		}
 		return true;

@@ -5,16 +5,14 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Observable;
-import java.util.Random;
-
-import game.ClientGoal;
-import game.ClientSnake;
 import game.GameElement;
 import game.Goal;
 import game.LoadGameServer;
 import game.Obstacle;
-import game.ClientObstacle;
 import game.Snake;
+import remote.ClientGoal;
+import remote.ClientObstacle;
+import remote.ClientSnake;
 
 public abstract class Board extends Observable implements Serializable {
 	protected Cell[][] cells;
@@ -73,19 +71,6 @@ public abstract class Board extends Observable implements Serializable {
 		}
 	}
 
-	public void addSnakesToClient(LinkedList<Snake> elements) {
-		this.snakes = elements;
-	}
-	public void addCellsToClient(Cell[][] elements) {
-		this.cells = elements;
-	}
-	public void addGoalToClient(BoardPosition elements) {
-		this.goalPosition = elements;
-	}
-	public void addObstaclesToClient(LinkedList<Obstacle> elements) {
-		this.obstacles = elements;
-	}
-
 	public List<BoardPosition> getNeighboringPositions(Cell cell) {
 		ArrayList<BoardPosition> possibleCells=new ArrayList<BoardPosition>();
 		BoardPosition pos=cell.getPosition();
@@ -98,7 +83,6 @@ public abstract class Board extends Observable implements Serializable {
 		if(pos.y<NUM_ROWS-1)
 			possibleCells.add(pos.getCellBelow());
 		return possibleCells;
-
 	}
 
 	protected Goal addGoal() {
@@ -111,7 +95,7 @@ public abstract class Board extends Observable implements Serializable {
 		// clear obstacle list , necessary when resetting obstacles.
 		getObstacles().clear();
 		while(numberObstacles>0) {
-			Obstacle obs=new Obstacle(this);
+			Obstacle obs=new Obstacle();
 			addGameElement( obs);
 			getObstacles().add(obs);
 			numberObstacles--;
@@ -122,22 +106,32 @@ public abstract class Board extends Observable implements Serializable {
 		return snakes;
 	}
 
-	public LoadGameServer creatGameServer() {
+    public boolean hasReachedGoal() {
+        return isFinished;
+    }
+
+    public void markGoalReached() {
+        isFinished = true;
+    }
+
+	 public LoadGameServer creatGameServer() {
 		LinkedList<ClientSnake> snakes = new LinkedList<>();
 		List<ClientObstacle> obs = new ArrayList<>();
 		ClientGoal clientGoal = new ClientGoal(goalPosition, goal.getValue());
 
-		for(Snake s : getSnakes()) {
-			ClientSnake clientSnake = new ClientSnake(s.getPath(), s.getIdentification());
-			snakes.add(clientSnake);
+		for (Snake s : getSnakes()) {
+				//boolean isHuman = (s instanceof HumanSnake);
+				ClientSnake clientSnake = new ClientSnake(s.getPath(), s.getIdentification());
+				snakes.add(clientSnake);
 		}
+
 		for(Obstacle o : getObstacles()) {
 			ClientObstacle clientObstacle = new ClientObstacle(o.getMyCell().getPosition(), o.getRemainingMoves());
 			obs.add(clientObstacle);
 		}
 
 		return new LoadGameServer(snakes, obs, clientGoal);
-	}
+	} 
 
 	@Override
 	public void setChanged() {
@@ -158,14 +152,4 @@ public abstract class Board extends Observable implements Serializable {
 	public void addSnake(Snake snake) {
 		snakes.add(snake);
 	}
-
-    // Adicione este método
-    public boolean hasReachedGoal() {
-        return isFinished;
-    }
-
-    // Adicione este método para marcar que o objetivo foi atingido
-    public void markGoalReached() {
-        isFinished = true;
-    }
 }

@@ -1,25 +1,24 @@
-package game;
+package remote;
 
 import java.io.Serializable;
-
 import environment.BoardPosition;
 
-public class ClientGoal implements Serializable {
+public class ClientObstacle implements Serializable {
     
     private static final long serialVersionUID = 1L;
     private BoardPosition pos;
-    private int value;
-    
-    public ClientGoal(BoardPosition pos, int value) {
+    private int remaining;
+
+    public ClientObstacle(BoardPosition pos, int remaining) {
         this.pos = pos;
-        this.value = value;
+        this.remaining = remaining;
     }
 
     public BoardPosition getPos() {
         return pos;
     }
 
-    public int getValue() {
-        return value;
+    public int getRemaining() {
+        return remaining;
     }
 }

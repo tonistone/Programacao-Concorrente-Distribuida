@@ -1,13 +1,9 @@
-package gui;
+package remote;
 
 import environment.LocalBoard;
 import environment.BoardPosition;
-import game.ClientGoal;
-import game.ClientObstacle;
-import game.ClientSnake;
 import game.LoadGameServer;
-import game.Snake;
-import remote.RemoteBoard;
+import gui.SnakeGui;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -48,21 +44,31 @@ public class BoardComponentClient extends JComponent implements KeyListener {
 		LoadGameServer load = board.getLoad();
 		
 		if (load != null) {
+			ClientGoal goal = load.getGoal();
+
+			g.setColor(Color.RED);
+			g.setFont(new Font(Font.MONOSPACED, Font.PLAIN, (int) CELL_WIDTH));
+			g.drawString(goal.getValue() + "", (int) Math.round((goal.getPos().x + 0.15) * CELL_WIDTH),
+					(int) Math.round((goal.getPos().y + 0.9) * CELL_WIDTH));
+
 			for (ClientSnake s : load.getSnakes()) {
 				for(BoardPosition b : s.getListPos()) {
+					if(s.isHumanSnake())
+						g.setColor(Color.ORANGE);
+					else
 						g.setColor(Color.LIGHT_GRAY);
 						g.fillRect((int) Math.round(b.x * CELL_WIDTH),
 						(int) Math.round(b.y * CELL_WIDTH),
 						(int) Math.round(CELL_WIDTH), (int) Math.round(CELL_WIDTH));
-						}
+				}		
 				if (s.getLength() > 0) {
 					g.setColor(new Color(s.getId() * 1000));
 
 					((Graphics2D) g).setStroke(new BasicStroke(5));
 					LinkedList<BoardPosition> listPos = s.getListPos();
-					BoardPosition prevPos = null;
+					BoardPosition prevPos = s.getListPos().getFirst();
 					for (BoardPosition coordinate : listPos) {
-						if (prevPos != null) {
+						if (s.getListPos() != null) {
 							g.drawLine(
 									(int) Math.round((prevPos.x + 0.5) * CELL_WIDTH),
 									(int) Math.round((prevPos.y + 0.5) * CELL_WIDTH),
@@ -87,13 +93,6 @@ public class BoardComponentClient extends JComponent implements KeyListener {
 				g.drawString(co.getRemaining() + "", (int) Math.round((co.getPos().x + 0.15) * CELL_WIDTH),
 						(int) Math.round((co.getPos().y + 0.9) * CELL_WIDTH));
 			}
-
-			ClientGoal goal = load.getGoal();
-
-			g.setColor(Color.RED);
-			g.setFont(new Font(Font.MONOSPACED, Font.PLAIN, (int) CELL_WIDTH));
-			g.drawString(goal.getValue() + "", (int) Math.round((goal.getPos().x + 0.15) * CELL_WIDTH),
-					(int) Math.round((goal.getPos().y + 0.9) * CELL_WIDTH));
 		}
 
 		

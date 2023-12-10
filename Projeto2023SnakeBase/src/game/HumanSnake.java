@@ -6,7 +6,6 @@ import environment.Board;
   * @author luismota
   *
   */
-  //não faz sentido
 public class HumanSnake extends Snake {
 	
 	public HumanSnake(int id,Board board) {

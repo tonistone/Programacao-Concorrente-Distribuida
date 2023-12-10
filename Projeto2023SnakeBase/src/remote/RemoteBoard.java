@@ -2,7 +2,6 @@ package remote;
 
 import environment.Board;
 import game.LoadGameServer;
-import gui.SnakeGuiClient;
 
 import java.awt.event.KeyEvent;
 
@@ -66,8 +65,7 @@ public class RemoteBoard extends Board {
         if (game == null) {
             game = new SnakeGuiClient(this, 600, 0);
             game.init();
-        }
-        
+        }    
     }
 
     public LoadGameServer getLoad() {

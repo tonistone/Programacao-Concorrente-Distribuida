@@ -1,28 +1,17 @@
 package game;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.ObjectOutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketException;
-
 import environment.Board;
-import environment.BoardPosition;
 import environment.Cell;
-import environment.LocalBoard;
-import gui.BoardComponent;
-import remote.RemoteBoard;
-import game.HumanSnake;
 
 public class Server {
 	private final Board board;
 	public static final int PORTO = 8080;
-	private Cell cell;
 
 	public Server(Board board) {
 		this.board = board;
@@ -32,10 +21,8 @@ public class Server {
 		private final Socket socket;
 		private HumanSnake humanSnake;
 
-		public DealWithClient(Socket socket) throws IOException {
+		private DealWithClient(Socket socket) throws IOException {
 			this.socket = socket;
-
-			// Só para lhe dar um ID.
 
 			doConnections(socket);
 		}
@@ -46,14 +33,7 @@ public class Server {
 		@Override
 		public void run() {
 			try {
-				synchronized (this) {
-					humanSnake = new HumanSnake(1, board);
-					humanSnake.doInitialPositioning();
-					humanSnake.start();
-					board.addSnake(humanSnake);
-					board.setChanged();
-
-				}
+				creatHumanSnake();
 				serve();
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -139,22 +119,24 @@ public class Server {
 			try {
 				while (!socket.isClosed()) {
 					LoadGameServer load = board.creatGameServer();
-					// System.out.println("Aqui estou eu");
 					out.writeObject(load);
 					out.flush();
-					out.reset();
+					
 					Thread.sleep(Board.REMOTE_REFRESH_INTERVAL);
-
+					out.reset();
 				}
-
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
-	}
 
-	public void getnewDirectionPressed() {
-
+		private synchronized void creatHumanSnake() {
+			humanSnake = new HumanSnake(1, board);
+			humanSnake.doInitialPositioning();
+			humanSnake.start();
+			board.addSnake(humanSnake);
+			board.setChanged();
+		}
 	}
 
 	public void startServing() throws IOException {

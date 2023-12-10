@@ -7,9 +7,6 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
-
-import environment.Board;
-import environment.BoardPosition;
 import game.LoadGameServer;
 import game.Server;
  
@@ -29,7 +26,6 @@ public class Client {
 
     public void runClient() {
         try {
-            // conectar ao servidor
             connectToServer();
             // enviar e receber
             handleConnection();
@@ -51,18 +47,10 @@ public class Client {
         remoteBoard = new RemoteBoard();
         // inicializa
         remoteBoard.init();
-
-        int numberOfObservers = remoteBoard.countObservers();
-
-        if (numberOfObservers > 0) {
-            System.out.println("Existem observadores registrados.");
-        } else {
-            System.out.println("Não existem observadores registrados.");
-        }
     }
 
     private void handleConnection() throws IOException {
-        // Iniciar thread para receber dados
+       
         new Thread(new Runnable() {
 
             @Override
@@ -75,7 +63,6 @@ public class Client {
             }
         }).start();
 
-        // Iniciar thread para enviar dados
         new Thread(new Runnable() {
 
             @Override
@@ -94,18 +81,14 @@ public class Client {
             try {
                 System.out.println(in.readObject());
                 LoadGameServer loadMessage = (LoadGameServer) in.readObject();
-                System.out.println("Mensagem recebida do servidor: " + loadMessage);
+                System.out.println("Mensagem recebida do servidor: " + loadMessage.toString());
                 remoteBoard.setLoad(loadMessage);
-                remoteBoard.setChanged();
-            } catch (IOException | ClassNotFoundException e) {
-                try {
-                    socket.close();
-                    System.out.println("Aconteceu");
-                    e.printStackTrace();
-                } catch (IOException e1) {
-                    // TODO Auto-generated catch block
-                    e1.printStackTrace();
-                }
+                remoteBoard.setChanged();    
+            } catch (ClassNotFoundException e) {
+                socket.close();
+                e.printStackTrace();
+            } catch (IOException e) {
+                 e.printStackTrace();
             }
         }
     }
@@ -114,18 +97,14 @@ public class Client {
 
         try {
             while (!socket.isClosed()) {
-                // System.out.println("sending");
                     if (remoteBoard.getnewDirectionPressed()) {
                         out.println(remoteBoard.getKeyPressed());
                         remoteBoard.handleKeyRelease();
-                        //System.out.println(remoteBoard.getKeyPressed());
                     }
-                    //remoteBoard.clearKeyPressed();
                 }
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     public static void main(String[] args) {

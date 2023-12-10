@@ -1,4 +1,4 @@
-package gui;
+package remote;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -6,8 +6,6 @@ import java.util.Observable;
 import java.util.Observer;
 
 import javax.swing.JFrame;
-
-import remote.RemoteBoard;
 /**
  *  Class to create and configure GUI.
  *  Only the listener to the button should be edited, see TODO below.
@@ -38,26 +36,9 @@ public class SnakeGuiClient implements Observer {
 		boardGui = new BoardComponentClient(board);
 		boardGui.setPreferredSize(new Dimension(BOARD_WIDTH, BOARD_HEIGHT));
 		frame.add(boardGui,BorderLayout.CENTER);
-
-		// JButton resetObstaclesButton=new JButton("Reset snakes' directions");
-		// resetObstaclesButton.addActionListener(new ActionListener() {
-			
-		// 	@Override
-		// 	public void actionPerformed(ActionEvent e) {
-		// 		for (Snake snake : board.getSnakes()) {
-		// 			System.out.println("Interrompi as snakes");
-		// 			snake.interrupt();
-		// 		}
-		// 	}
-				
-		// });
-		// frame.add(resetObstaclesButton,BorderLayout.SOUTH);
-		
-		
 		frame.pack();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
-
 
 	public void init() {
 		frame.setVisible(true);

@@ -3,6 +3,9 @@ package game;
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
+import remote.ClientGoal;
+import remote.ClientObstacle;
+import remote.ClientSnake;
 
 public class LoadGameServer implements Serializable {
     
@@ -21,11 +24,9 @@ public class LoadGameServer implements Serializable {
         return snakes;
     }
 
-
     public List<ClientObstacle> getObs() {
         return obs;
     }
-
 
     public ClientGoal getGoal() {
         return goal;
