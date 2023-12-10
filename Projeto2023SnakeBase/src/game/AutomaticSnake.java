@@ -14,6 +14,8 @@ public class AutomaticSnake extends Snake {
 	public void run() {
 		try {
 			doInitialPositioning();
+			sleep(10000);
+			System.out.println(this.getId() + " acordei");
 			//System.err.println("initial size:" + cells.size());
 			while (!isInterrupted()) {
 				Thread.sleep(Board.PLAYER_PLAY_INTERVAL);

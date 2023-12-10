@@ -38,7 +38,7 @@ public class Cell {
 		sharedLock.lock();
 		try {
 			while (isOcupied() && (ocuppyingSnake != snake || ocuppyingSnake != null)) {
-				System.out.println("WAITING");
+				//System.out.println("WAITING");
 				snakeMoved.await();
 			}
 			ocuppyingSnake = snake;

@@ -2,6 +2,9 @@ package environment;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import game.Obstacle;
 import game.ObstacleMover;
 import game.Snake;
@@ -19,9 +22,9 @@ public class LocalBoard extends Board {
 	private static final int NUM_OBSTACLES = 25;
 	private static final int NUM_SIMULTANEOUS_MOVING_OBSTACLES = 3;
 	private transient ExecutorService pool = Executors.newFixedThreadPool(NUM_SIMULTANEOUS_MOVING_OBSTACLES);
+	private static final int INITIAL_DELAY_SECONDS = 10;
 
 	public LocalBoard() {
-
 		for (int i = 0; i < NUM_SNAKES; i++) {
 			AutomaticSnake snake = new AutomaticSnake(i, this);
 			snakes.add(snake);
@@ -32,17 +35,21 @@ public class LocalBoard extends Board {
 	}
 
 	public void init() {
+		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+        scheduler.schedule(this::initializeThreadPool, INITIAL_DELAY_SECONDS, TimeUnit.SECONDS);
 		for (Snake s : snakes) {
 			s.start();
 		}
-		// thread pool
-		for (Obstacle o : getObstacles()) {
-			ObstacleMover om = new ObstacleMover(o, this);
-			pool.submit(om);
-		}
-		pool.shutdown();
-		setChanged();
 	}
+
+	private void initializeThreadPool() {
+        // Inicio da threadPool
+        for (Obstacle o : getObstacles()) {
+            ObstacleMover om = new ObstacleMover(o, this);
+            pool.submit(om);
+        }
+        pool.shutdown();
+    }
 
 	@Override
 	public void handleKeyPress(int keyCode) {

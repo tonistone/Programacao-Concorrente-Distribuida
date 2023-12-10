@@ -200,7 +200,9 @@ public abstract class Snake extends Thread implements Serializable {
 		LinkedList<BoardPosition> coordinates = new LinkedList<BoardPosition>();
 		
 			for (Cell cell : new LinkedList<>(cells)) {
+				if(cell != null) {
 				coordinates.add(cell.getPosition());
+				}
 			}
 		return coordinates;
 	}
