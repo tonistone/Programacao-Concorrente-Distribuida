@@ -64,8 +64,7 @@ public abstract class Snake extends Thread implements Serializable {
 			}
 
 			if (this instanceof HumanSnake) {
-				BoardPosition road = this.getCells().getFirst().getPosition().getCellRight();
-				head = board.getCell(road);				
+				head = cell;				
 			}
 			
 			head.request(this);
