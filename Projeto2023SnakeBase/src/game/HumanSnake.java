@@ -23,6 +23,7 @@ public class HumanSnake extends Snake {
 		}
 
 		cells.addFirst(head);
+		head.setOcuppyingSnake(this);
 		super.goalReachedCheck(head);
 
 		if (cells.size() > size) {

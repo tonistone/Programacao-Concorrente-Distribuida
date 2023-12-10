@@ -75,6 +75,10 @@ public class Cell {
 		return ocuppyingSnake;
 	}
 
+	public void setOcuppyingSnake(Snake s) {
+		ocuppyingSnake= s;
+	}
+
 	public synchronized Goal removeGoal() {
 		if (isOcupiedByGoal()) {
 			Goal goal = getGoal();

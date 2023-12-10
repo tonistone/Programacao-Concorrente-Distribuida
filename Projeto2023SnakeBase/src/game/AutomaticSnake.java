@@ -33,12 +33,8 @@ public class AutomaticSnake extends Snake {
 		sharedLock.lock();
 		try {
 			Cell head = cells.getFirst();
-			if(this instanceof AutomaticSnake) {
 			BoardPosition roadToGoal = getDistanceToGoal(cell);
-			head = board.getCell(roadToGoal);
-			}
-
-		
+			head = board.getCell(roadToGoal);		
 			head.request(this);
 
 			cells.addFirst(head);
