@@ -18,7 +18,6 @@ import game.Server;
  */
 
 public class Client {
-
     private ObjectInputStream in;
     private PrintWriter out;
     private Socket socket;
@@ -29,7 +28,6 @@ public class Client {
             connectToServer();
             // enviar e receber
             handleConnection();
-
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -52,7 +50,6 @@ public class Client {
     private void handleConnection() throws IOException {
        
         new Thread(new Runnable() {
-
             @Override
             public void run() {
                 try {
@@ -64,7 +61,6 @@ public class Client {
         }).start();
 
         new Thread(new Runnable() {
-
             @Override
             public void run() {
                 try {
@@ -81,7 +77,7 @@ public class Client {
             try {
                 System.out.println(in.readObject());
                 LoadGameServer loadMessage = (LoadGameServer) in.readObject();
-                System.out.println("Mensagem recebida do servidor: " + loadMessage.toString());
+               // System.out.println("Mensagem recebida do servidor: " + loadMessage.toString());
                 remoteBoard.setLoad(loadMessage);
                 remoteBoard.setChanged();    
             } catch (ClassNotFoundException e) {
@@ -94,7 +90,6 @@ public class Client {
     }
 
     private void sendMessages() throws IOException {
-
         try {
             while (!socket.isClosed()) {
                     if (remoteBoard.getnewDirectionPressed()) {

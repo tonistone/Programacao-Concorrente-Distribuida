@@ -36,11 +36,6 @@ public abstract class Board extends Observable implements Serializable {
 	}
 
 	public Cell getCell(BoardPosition cellCoord) {
-		/* if(cellCoord.x == NUM_COLUMNS || cellCoord.y == NUM_ROWS){
-			System.out.println("no if das coordenadas");
-			System.out.println("X "+ cellCoord.x + " Y " + cellCoord.y);
-			return null;
-		} */
 		return cells[cellCoord.x][cellCoord.y];
 	}
 

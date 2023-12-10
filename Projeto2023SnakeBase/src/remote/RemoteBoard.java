@@ -26,7 +26,6 @@ public class RemoteBoard extends Board {
                 keyPressed="UP";
                 newDirectionPressed = true;
                 break;
-
             case KeyEvent.VK_DOWN:
                 keyPressed="DOWN";
                 newDirectionPressed = true;
@@ -35,9 +34,24 @@ public class RemoteBoard extends Board {
                 keyPressed="LEFT"; 
                 newDirectionPressed = true;      
                 break;
-
             case KeyEvent.VK_RIGHT:   
                 keyPressed="RIGHT";
+                newDirectionPressed = true;         
+                break;
+            case KeyEvent.VK_W:
+                keyPressed="UP_W";
+                newDirectionPressed = true;
+                break;
+            case KeyEvent.VK_S:
+                keyPressed="DOWN_S";
+                newDirectionPressed = true;
+                break;
+            case KeyEvent.VK_A:
+                keyPressed="LEFT_A"; 
+                newDirectionPressed = true;      
+                break;
+            case KeyEvent.VK_D:   
+                keyPressed="RIGHT_D";
                 newDirectionPressed = true;         
                 break;
 		}	

@@ -88,8 +88,7 @@ public class Cell {
 		return null;
 	}
 
-	// se a célula estiver ocupada por um objetivo então capturamos, se não não
-	// fazemos nada (-1)
+	// se a célula estiver ocupada por um objetivo então capturamos, se não não fazemos nada (-1)
 	public synchronized int captureGoal() {
 		return isOcupiedByGoal() ? getGoal().captureGoal() : -1;
 	}
