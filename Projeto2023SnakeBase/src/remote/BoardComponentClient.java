@@ -40,7 +40,7 @@ public class BoardComponentClient extends JComponent implements KeyListener {
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		final double CELL_WIDTH = getHeight() / (double) SnakeGui.NUM_ROWS;
+		final double CELL_WIDTH = getHeight() / (double) SnakeGuiClient.NUM_ROWS;
 		LoadGameServer load = board.getLoad();
 		
 		if (load != null) {

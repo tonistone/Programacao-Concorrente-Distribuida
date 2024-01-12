@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Observable;
 import game.GameElement;
 import game.Goal;
+import game.HumanSnake;
 import game.LoadGameServer;
 import game.Obstacle;
 import game.Snake;
